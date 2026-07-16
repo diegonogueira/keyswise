@@ -1,0 +1,41 @@
+{
+  "name": "keyswise",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Keyswise — app de treino de voicings de acorde no piano",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "android:apk": "npm run build && cap sync android && android/gradlew -p android assembleDebug",
+    "android:install": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/status-bar": "^8.0.3",
+    "i18next": "^26.3.3",
+    "lucide-react": "^1.21.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^17.0.8",
+    "smplr": "^1.0.0",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.2",
+    "@tailwindcss/vite": "^4.3.1",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.0.3",
+    "jsdom": "^29.1.1",
+    "playwright-core": "^1.61.1",
+    "tailwindcss": "^4.3.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
+  }
+}

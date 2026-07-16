@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "group": {
+      "voicings": "Voicings"
+    },
+    "item": {
+      "keysToSymbol": "Teclas → Cifra",
+      "symbolToKeys": "Cifra → Teclas"
+    }
+  },
+  "topbar": {
+    "subtitle": "treino de voicings",
+    "aria": {
+      "openMenu": "Abrir menu",
+      "settings": "Configurações",
+      "hideBar": "Esconder barra",
+      "showBar": "Mostrar barra"
+    }
+  },
+  "exercise": {
+    "next": "Próxima",
+    "keysToSymbol": {
+      "prompt": "Este é um acorde de <root>{{root}}</root> (mão direita). Qual é a cifra?",
+      "hint": "Só a mão direita aparece — o voicing pode não começar pela tônica.",
+      "correct": "Certo! É {{chord}} ({{notes}}).",
+      "wrong": "Era {{chord}} — você marcou {{chosen}}."
+    },
+    "symbolToKeys": {
+      "prompt": "Qual teclado é <chord>{{chord}}</chord>?",
+      "hint": "Escolha o voicing (mão direita) que corresponde à cifra.",
+      "correct": "Certo! É {{chord}}.",
+      "wrong": "Escolha errada. {{chord}} está destacado."
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "aria": {
+      "close": "Fechar"
+    },
+    "audio": "Áudio",
+    "audioOn": "Ligado",
+    "audioOff": "Desligado",
+    "moduleSection": "Neste módulo",
+    "showNoteName": "Mostrar nome das notas",
+    "yes": "Sim",
+    "no": "Não",
+    "rootSection": "Fundamental",
+    "root": "Fundamental",
+    "rootC": "C fixo",
+    "rootRandom": "Aleatória",
+    "rootHelp": "Com \"Aleatória\", a fundamental é sorteada e sempre anunciada na questão.",
+    "categoriesSection": "Acordes",
+    "categoriesHelp": "Escolha quais tipos de acorde aparecem no exercício (pode combinar; ao menos um).",
+    "stylesSection": "Estilos de voicing",
+    "stylesHelp": "Escolha quais formas de voicing praticar. Se um acorde não tiver o estilo marcado, cai no voicing básico."
+  },
+  "chordCategory": {
+    "triads": "Tríades",
+    "sus": "Suspensos",
+    "sixths": "Sextas",
+    "sevenths": "Sétimas",
+    "extended": "Estendidos",
+    "altered": "Alterados"
+  },
+  "voicingStyle": {
+    "basic": "Básico / inversões",
+    "shell": "Shell (R+3+7)",
+    "rootless": "Rootless (Bill Evans)",
+    "quartal": "Quartal (So What)"
+  },
+  "lang": {
+    "label": "Idioma"
+  }
+}

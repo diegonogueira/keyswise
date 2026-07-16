@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "group": {
+      "voicings": "Voicings"
+    },
+    "item": {
+      "keysToSymbol": "Keys → Chord",
+      "symbolToKeys": "Chord → Keys"
+    }
+  },
+  "topbar": {
+    "subtitle": "voicing trainer",
+    "aria": {
+      "openMenu": "Open menu",
+      "settings": "Settings",
+      "hideBar": "Hide bar",
+      "showBar": "Show bar"
+    }
+  },
+  "exercise": {
+    "next": "Next",
+    "keysToSymbol": {
+      "prompt": "This is a <root>{{root}}</root> chord (right hand). What's the symbol?",
+      "hint": "Only the right hand is shown — the voicing may not start on the root.",
+      "correct": "Correct! It's {{chord}} ({{notes}}).",
+      "wrong": "It was {{chord}} — you picked {{chosen}}."
+    },
+    "symbolToKeys": {
+      "prompt": "Which keyboard is <chord>{{chord}}</chord>?",
+      "hint": "Pick the voicing (right hand) that matches the symbol.",
+      "correct": "Correct! It's {{chord}}.",
+      "wrong": "Wrong choice. {{chord}} is highlighted."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "aria": {
+      "close": "Close"
+    },
+    "audio": "Audio",
+    "audioOn": "On",
+    "audioOff": "Off",
+    "moduleSection": "This module",
+    "showNoteName": "Show note names",
+    "yes": "Yes",
+    "no": "No",
+    "rootSection": "Root",
+    "root": "Root",
+    "rootC": "Fixed C",
+    "rootRandom": "Random",
+    "rootHelp": "With \"Random\", the root is drawn each question and always announced.",
+    "categoriesSection": "Chords",
+    "categoriesHelp": "Choose which chord types appear (combine freely; at least one).",
+    "stylesSection": "Voicing styles",
+    "stylesHelp": "Choose which voicing shapes to practice. If a chord lacks the checked style, it falls back to the basic voicing."
+  },
+  "chordCategory": {
+    "triads": "Triads",
+    "sus": "Suspended",
+    "sixths": "Sixths",
+    "sevenths": "Sevenths",
+    "extended": "Extended",
+    "altered": "Altered"
+  },
+  "voicingStyle": {
+    "basic": "Basic / inversions",
+    "shell": "Shell (R+3+7)",
+    "rootless": "Rootless (Bill Evans)",
+    "quartal": "Quartal (So What)"
+  },
+  "lang": {
+    "label": "Language"
+  }
+}
