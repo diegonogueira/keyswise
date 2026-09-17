@@ -6,7 +6,7 @@ import { pitchClassName } from '../core/notes'
 import { windowFor } from '../core/piano'
 import { qualityById } from '../core/voicings'
 import { chordSymbol, chordNoteNames } from '../core/symbol'
-import type { ChordSpec } from '../core/exercise'
+import type { ChordSpec, KeysToSymbolQuestion, SymbolToKeysQuestion } from '../core/exercise'
 import type { ExerciseApi } from '../hooks/useExercise'
 import { cx } from '../lib/cx'
 
@@ -38,7 +38,7 @@ interface ExercisePanelProps {
 }
 
 export function ExercisePanel({ exercise, compact = false }: ExercisePanelProps) {
-  const { mode, status } = exercise
+  const { question, status } = exercise
   const answered = status !== 'idle'
   const correct = status === 'correct'
   const { t } = useTranslation()
@@ -62,30 +62,29 @@ export function ExercisePanel({ exercise, compact = false }: ExercisePanelProps)
         !answered ? 'border-line' : correct ? 'border-correct/40' : 'border-wrong/40',
       )}
     >
-      {mode === 'keysToSymbol' ? (
-        <KeysToSymbolBody exercise={exercise} compact={compact} nextButton={nextButton} />
+      {/* decide pelo modo da QUESTÃO: cada corpo recebe a questão com os campos do seu modo */}
+      {question.mode === 'keysToSymbol' ? (
+        <KeysToSymbolBody exercise={exercise} question={question} compact={compact} nextButton={nextButton} />
       ) : (
-        <SymbolToKeysBody exercise={exercise} compact={compact} nextButton={nextButton} />
+        <SymbolToKeysBody exercise={exercise} question={question} compact={compact} nextButton={nextButton} />
       )}
     </section>
   )
 }
 
-interface BodyProps {
+interface BodyProps<Q> {
   exercise: ExerciseApi
+  question: Q
   compact: boolean
   nextButton: ReactNode
 }
 
 /** Modo Teclas → Cifra: o voicing acende no teclado (acima); escolhe-se a cifra. */
-function KeysToSymbolBody({ exercise, compact, nextButton }: BodyProps) {
+function KeysToSymbolBody({ exercise, question, compact, nextButton }: BodyProps<KeysToSymbolQuestion>) {
   const { t } = useTranslation()
-  const { question, status, chosenSpec } = exercise
+  const { status, chosenSpec } = exercise
   const answered = status !== 'idle'
   const correct = status === 'correct'
-  // guarda a troca de modo: por um render o `question` pode ser o do modo anterior (sem este
-  // campo) — evita o crash "undefined" enquanto a questão nova não chega.
-  if (!question.symbolChoices) return null
   const root = pitchClassName(question.chord.rootPc)
   const target = symbolOf(question.chord)
   const notes = chordNoteNames(question.chord.rootPc, qualityById(question.chord.qualityId))
@@ -152,12 +151,11 @@ function KeysToSymbolBody({ exercise, compact, nextButton }: BodyProps) {
 }
 
 /** Modo Cifra → Teclas: mostra a cifra; escolhe-se, entre 4 teclados, o voicing correto. */
-function SymbolToKeysBody({ exercise, compact, nextButton }: BodyProps) {
+function SymbolToKeysBody({ exercise, question, compact, nextButton }: BodyProps<SymbolToKeysQuestion>) {
   const { t } = useTranslation()
-  const { question, status, chosenChoiceIdx } = exercise
+  const { status, chosenChoiceIdx } = exercise
   const answered = status !== 'idle'
   const correct = status === 'correct'
-  if (!question.keyChoices) return null
   const target = symbolOf(question.chord)
   const choices = question.keyChoices
   // janela compartilhada: todas as alternativas no mesmo registro (comparáveis)

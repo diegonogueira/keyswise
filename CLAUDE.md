@@ -78,10 +78,12 @@ recebe `rng` (produção usa `Math.random`; os testes, `mulberry32` semeado — 
 `ExerciseView` é o conteúdo dos modos de exercício (teclado principal + painel): mora num
 componente próprio para o `useExercise` só montar nos exercícios, nunca no dicionário.
 
-**Gotcha da troca de modo (tela branca):** na navegação o `mode` muda um render antes de o
-`question` regenerar, então por um quadro o painel do novo modo veria a questão do anterior (sem
-`keyChoices`/`symbolChoices`). Hoje há duas defesas: a regeneração roda em `useLayoutEffect` e cada
-corpo do `ExercisePanel` tem um guard (`if (!question.keyChoices) return null`).
+A `Question` é discriminada pelo `mode`: `KeysToSymbolQuestion` sempre tem `symbolChoices`,
+`SymbolToKeysQuestion` sempre tem `keyChoices`. O `ExercisePanel` escolhe o corpo pelo
+`question.mode` (não pelo modo da URL) e passa a questão já estreitada. A regeneração ao trocar de
+modo ou de config acontece durante o render (assinatura `[mode, config]` no `useExercise`), como
+manda o guia — antes era um `useLayoutEffect` com guards nos corpos, porque por um quadro o painel
+do modo novo recebia a questão do anterior.
 
 ### Dicionário (`src/core/dictionary.ts` + `src/components/Dictionary.tsx`)
 

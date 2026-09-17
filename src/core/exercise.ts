@@ -47,8 +47,7 @@ export interface VoicingConfig {
   fixedRootPc: number | null
 }
 
-export interface Question {
-  mode: ExerciseMode
+interface QuestionBase {
   /** identidade do acorde-alvo */
   chord: ChordSpec
   /** pitch classes (0–11) COMPLETOS do acorde — alvo da validação no modo keysToSymbol */
@@ -56,11 +55,26 @@ export interface Question {
   /** MIDIs (soando) do voicing correto mostrado no teclado (modo keysToSymbol: o que acende;
    *  modo symbolToKeys: o voicing da alternativa correta) */
   voicing: number[]
-  /** modo keysToSymbol: 4 cifras candidatas (uma correta), MESMA fundamental, pitch sets distintos */
-  symbolChoices?: ChordSpec[]
-  /** modo symbolToKeys: 4 voicings (teclados) candidatos — exatamente um casa com `voicing` */
-  keyChoices?: number[][]
 }
+
+export interface KeysToSymbolQuestion extends QuestionBase {
+  mode: 'keysToSymbol'
+  /** 4 cifras candidatas (uma correta), MESMA fundamental, pitch sets distintos */
+  symbolChoices: ChordSpec[]
+}
+
+export interface SymbolToKeysQuestion extends QuestionBase {
+  mode: 'symbolToKeys'
+  /** 4 voicings (teclados) candidatos — exatamente um casa com `voicing` */
+  keyChoices: number[][]
+}
+
+/**
+ * Uma questão, discriminada pelo `mode`: cada modo tem os seus campos garantidos pelo tipo. Quem
+ * desenha a questão decide pelo `question.mode` (não pelo modo da URL), então nunca lê um campo
+ * que a questão não tem.
+ */
+export type Question = KeysToSymbolQuestion | SymbolToKeysQuestion
 
 const DEFAULT_QUALITIES = ['maj', 'min']
 const DEFAULT_STYLES = ['basic']
@@ -107,7 +121,7 @@ function buildSymbolChoices(answer: ChordSpec, qualities: string[], rng: Rng): C
 }
 
 /** Modo keysToSymbol: sorteia qualidade + fundamental, mostra um voicing e monta as cifras. */
-function generateKeysToSymbol(cfg: VoicingConfig, rng: Rng): Question {
+function generateKeysToSymbol(cfg: VoicingConfig, rng: Rng): KeysToSymbolQuestion {
   const qualities = resolveQualities(cfg)
   const styles = resolveStyles(cfg)
   const qualityId = pick(rng, qualities)
@@ -126,7 +140,7 @@ function generateKeysToSymbol(cfg: VoicingConfig, rng: Rng): Question {
  * Modo symbolToKeys: sorteia o acorde-alvo e seu voicing; monta 4 teclados (o correto +
  * distratores de outras qualidades na mesma fundamental), com conjuntos de teclas distintos.
  */
-function generateSymbolToKeys(cfg: VoicingConfig, rng: Rng): Question {
+function generateSymbolToKeys(cfg: VoicingConfig, rng: Rng): SymbolToKeysQuestion {
   const qualities = resolveQualities(cfg)
   const styles = resolveStyles(cfg)
   const qualityId = pick(rng, qualities)
@@ -158,6 +172,9 @@ function generateSymbolToKeys(cfg: VoicingConfig, rng: Rng): Question {
   }
 }
 
+export function generateQuestion(opts: { mode: 'keysToSymbol'; config: VoicingConfig; rng?: Rng }): KeysToSymbolQuestion
+export function generateQuestion(opts: { mode: 'symbolToKeys'; config: VoicingConfig; rng?: Rng }): SymbolToKeysQuestion
+export function generateQuestion(opts: { mode: ExerciseMode; config: VoicingConfig; rng?: Rng }): Question
 export function generateQuestion(opts: {
   mode: ExerciseMode
   config: VoicingConfig
