@@ -9,7 +9,6 @@ import fretwise from '../assets/family/fretwise.svg'
 import keyswise from '../assets/family/keyswise.svg'
 import mathwise from '../assets/family/mathwise.svg'
 import sheetwise from '../assets/family/sheetwise.svg'
-import sightwise from '../assets/family/sightwise.svg'
 
 export interface FamilyApp {
   id: string
@@ -33,19 +32,10 @@ export const FAMILY: FamilyApp[] = [
     id: 'sheetwise',
     name: 'Sheetwise',
     tagline: {
-      pt: 'Leitura na pauta: notas, intervalos e armaduras nas claves de Sol, Fá e Dó.',
-      en: 'Staff reading: notes, intervals and key signatures in treble, bass and C clefs.',
+      pt: 'Leitura de partitura: notas, intervalos, armaduras e leitura à primeira vista.',
+      en: 'Staff reading: notes, intervals, key signatures and sight-reading.',
     },
     logo: sheetwise,
-  },
-  {
-    id: 'sightwise',
-    name: 'Sightwise',
-    tagline: {
-      pt: 'Leitura à primeira vista no piano e no violão, com música nova a cada exercício.',
-      en: 'Sight-reading for piano and guitar, with new music in every exercise.',
-    },
-    logo: sightwise,
   },
   {
     id: 'keyswise',
