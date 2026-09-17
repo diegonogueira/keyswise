@@ -1,31 +1,30 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { ExerciseMode } from '../core/exercise'
-import { modeFromPath, pathForMode } from '../lib/routes'
+import { pathForRoute, routeFromPath, type Route } from '../lib/routes'
 
 /**
- * Roteamento mínimo via History API: a URL é a fonte da verdade do modo ativo. Suporta
+ * Roteamento mínimo via History API: a URL é a fonte da verdade do destino ativo. Suporta
  * deep-link, voltar/avançar do navegador e canoniza a URL inicial sem poluir o histórico.
  */
-export function useRoute(): [ExerciseMode, (mode: ExerciseMode) => void] {
-  const [mode, setMode] = useState<ExerciseMode>(() => modeFromPath(window.location.pathname))
+export function useRoute(): [Route, (route: Route) => void] {
+  const [route, setRoute] = useState<Route>(() => routeFromPath(window.location.pathname))
 
   useEffect(() => {
-    const canonical = pathForMode(modeFromPath(window.location.pathname))
+    const canonical = pathForRoute(routeFromPath(window.location.pathname))
     if (window.location.pathname !== canonical) {
       window.history.replaceState(null, '', canonical)
     }
-    const sync = () => setMode(modeFromPath(window.location.pathname))
+    const sync = () => setRoute(routeFromPath(window.location.pathname))
     window.addEventListener('popstate', sync)
     return () => window.removeEventListener('popstate', sync)
   }, [])
 
-  const navigate = useCallback((next: ExerciseMode) => {
-    const path = pathForMode(next)
+  const navigate = useCallback((next: Route) => {
+    const path = pathForRoute(next)
     if (window.location.pathname !== path) {
       window.history.pushState(null, '', path)
     }
-    setMode(next)
+    setRoute(next)
   }, [])
 
-  return [mode, navigate]
+  return [route, navigate]
 }

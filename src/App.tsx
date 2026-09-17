@@ -1,38 +1,31 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { TopBar } from './components/TopBar'
 import { SettingsPanel } from './components/Settings'
 import { Sidebar } from './components/Sidebar'
-import { Piano, type KeyPin } from './components/Piano/Piano'
-import { ExercisePanel } from './components/ExercisePanel'
-import { useSettings, useModuleConfig } from './store/settings'
-import { useExercise } from './hooks/useExercise'
+import { ExerciseView } from './components/ExerciseView'
+import { Dictionary } from './components/Dictionary'
+import { useSettings } from './store/settings'
 import { useRoute } from './hooks/useRoute'
 import { useShortLandscape } from './hooks/useMediaQuery'
 import { cx } from './lib/cx'
-import { usesPiano, type ExerciseMode, type VoicingConfig } from './core/exercise'
-import { qualityIdsForCategories } from './core/voicings'
-import { windowFor } from './core/piano'
-import { noteName } from './core/notes'
-import { playMidi, loadInstrument } from './audio/player'
+import { isExerciseMode, type Route } from './lib/routes'
+import { loadInstrument } from './audio/player'
 import { syncStatusBar } from './native/statusBar'
 
-// Guard de exaustividade em tempo de compilação: um novo ExerciseMode sem chave de tradução
-// aqui quebra o build.
-const MODE_KEYS: Record<ExerciseMode, string> = {
+// Guard de exaustividade em tempo de compilação: um novo Route sem chave de tradução aqui
+// quebra o build.
+const ROUTE_KEYS: Record<Route, string> = {
   keysToSymbol: 'nav.item.keysToSymbol',
   symbolToKeys: 'nav.item.symbolToKeys',
+  dictionary: 'nav.item.dictionary',
 }
 
 export default function App() {
   const { t, i18n } = useTranslation()
-  const [mode, navigate] = useRoute()
+  const [route, navigate] = useRoute()
   const audioEnabled = useSettings((s) => s.audioEnabled)
-  const { showNoteName } = useModuleConfig(mode)
-  const chordCategories = useSettings((s) => s.chordCategories)
-  const voicingStyles = useSettings((s) => s.voicingStyles)
-  const rootMode = useSettings((s) => s.rootMode)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const compact = useShortLandscape()
@@ -46,54 +39,19 @@ export default function App() {
   useEffect(() => {
     if (compact) setHeaderHidden(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode])
+  }, [route])
 
   useEffect(() => {
     void syncStatusBar(compact)
   }, [compact])
-
-  // identidade estável: regenera a questão só quando a config muda de fato
-  const config = useMemo<VoicingConfig>(
-    () => ({
-      qualities: qualityIdsForCategories(chordCategories),
-      styles: voicingStyles,
-      fixedRootPc: rootMode === 'C' ? 0 : null,
-    }),
-    [chordCategories, voicingStyles, rootMode],
-  )
-
-  const exercise = useExercise({
-    mode,
-    config,
-    onReveal: (midi) => {
-      if (!audioEnabled) return
-      void playMidi(midi)
-    },
-  })
-  const { status, question } = exercise
 
   useEffect(() => {
     if (audioEnabled) void loadInstrument()
   }, [audioEnabled])
 
   useEffect(() => {
-    document.title = `Keyswise — ${t(MODE_KEYS[mode])}`
-  }, [mode, t, i18n.language])
-
-  // O teclado principal aparece só no modo Teclas → Cifra (mostra o voicing a identificar).
-  // No modo Cifra → Teclas as alternativas (teclados) ficam no painel.
-  const showMainPiano = usesPiano(mode) && mode === 'keysToSymbol'
-  const answered = status !== 'idle'
-  const [lo, hi] = windowFor(question.voicing)
-  const pins: KeyPin[] =
-    mode === 'keysToSymbol'
-      ? question.voicing.map((m) => ({
-          midi: m,
-          variant: 'accent',
-          label: showNoteName || answered ? noteName(m) : undefined,
-        }))
-      : []
-  const focusMidis = mode === 'keysToSymbol' ? question.voicing : []
+    document.title = `Keyswise — ${t(ROUTE_KEYS[route])}`
+  }, [route, t, i18n.language])
 
   return (
     <div className={cx('flex flex-col', compact ? 'h-[100dvh] overflow-hidden' : 'min-h-screen')}>
@@ -110,7 +68,7 @@ export default function App() {
           onOpenSettings={() => setSettingsOpen(true)}
           onToggleSidebar={() => setSidebarOpen(true)}
           compact={compact}
-          modeTitle={t(MODE_KEYS[mode])}
+          modeTitle={t(ROUTE_KEYS[route])}
           onHide={compact ? () => setHeaderHidden(true) : undefined}
         />
       )}
@@ -128,7 +86,7 @@ export default function App() {
 
       <div className="flex min-h-0 flex-1">
         <Sidebar
-          mode={mode}
+          route={route}
           onSelect={navigate}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
@@ -141,31 +99,18 @@ export default function App() {
           )}
         >
           <h1 className={cx('font-semibold text-ink', compact ? 'sr-only' : 'text-sm')}>
-            {t(MODE_KEYS[mode])}
+            {t(ROUTE_KEYS[route])}
           </h1>
 
-          {showMainPiano && (
-            <div
-              className={cx(
-                'shrink-0 rounded-2xl border border-line bg-surface',
-                compact ? 'p-2' : 'p-3 sm:p-4',
-              )}
-            >
-              <Piano
-                lo={lo}
-                hi={hi}
-                pins={pins}
-                density={compact ? 'compact' : 'comfortable'}
-                focusMidis={focusMidis}
-              />
-            </div>
+          {isExerciseMode(route) ? (
+            <ExerciseView mode={route} compact={compact} />
+          ) : (
+            <Dictionary compact={compact} />
           )}
-
-          <ExercisePanel exercise={exercise} compact={compact} />
         </main>
       </div>
 
-      {settingsOpen && <SettingsPanel mode={mode} onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && <SettingsPanel route={route} onClose={() => setSettingsOpen(false)} />}
     </div>
   )
 }

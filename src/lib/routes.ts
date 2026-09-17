@@ -1,27 +1,37 @@
-// Mapa entre cada modo de treino e sua URL (em inglês). A URL é a fonte da verdade do modo
-// ativo — ver `src/hooks/useRoute.ts`. Caminhos novos entram aqui e em lugar nenhum mais.
-import type { ExerciseMode } from '../core/exercise'
+// Mapa entre cada destino do app e sua URL (em inglês). A URL é a fonte da verdade do
+// destino ativo — ver `src/hooks/useRoute.ts`. Caminhos novos entram aqui e em lugar nenhum
+// mais. Um destino é um modo de exercício OU uma página de referência (o dicionário).
+import { EXERCISE_MODES, type ExerciseMode } from '../core/exercise'
 
-/** Caminho canônico (kebab-case, em inglês) de cada modo. */
-export const MODE_PATH: Record<ExerciseMode, string> = {
+/** Destino ativo: um modo de exercício ou a página de dicionário (referência). */
+export type Route = ExerciseMode | 'dictionary'
+
+/** Caminho canônico (kebab-case, em inglês) de cada destino. */
+export const ROUTE_PATH: Record<Route, string> = {
   keysToSymbol: '/keys-to-chord',
   symbolToKeys: '/chord-to-keys',
+  dictionary: '/dictionary',
 }
 
-/** Modo aberto quando a URL não aponta para nenhum (ex.: "/" na primeira visita). */
-export const DEFAULT_MODE: ExerciseMode = 'keysToSymbol'
+/** Destino aberto quando a URL não aponta para nenhum (ex.: "/" na primeira visita). */
+export const DEFAULT_ROUTE: Route = 'keysToSymbol'
 
-const PATH_MODE = Object.fromEntries(
-  (Object.entries(MODE_PATH) as [ExerciseMode, string][]).map(([mode, path]) => [path, mode]),
-) as Record<string, ExerciseMode>
+const PATH_ROUTE = Object.fromEntries(
+  (Object.entries(ROUTE_PATH) as [Route, string][]).map(([route, path]) => [path, route]),
+) as Record<string, Route>
 
-/** Resolve um pathname para o modo correspondente (cai no padrão se desconhecido). */
-export function modeFromPath(pathname: string): ExerciseMode {
+/** Resolve um pathname para o destino correspondente (cai no padrão se desconhecido). */
+export function routeFromPath(pathname: string): Route {
   const clean = pathname.replace(/\/+$/, '') || '/'
-  return PATH_MODE[clean] ?? DEFAULT_MODE
+  return PATH_ROUTE[clean] ?? DEFAULT_ROUTE
 }
 
-/** Caminho canônico de um modo. */
-export function pathForMode(mode: ExerciseMode): string {
-  return MODE_PATH[mode]
+/** Caminho canônico de um destino. */
+export function pathForRoute(route: Route): string {
+  return ROUTE_PATH[route]
+}
+
+/** O destino é um modo de exercício (e não a página de dicionário)? */
+export function isExerciseMode(route: Route): route is ExerciseMode {
+  return (EXERCISE_MODES as readonly string[]).includes(route)
 }

@@ -1,11 +1,27 @@
 {
   "nav": {
     "group": {
-      "voicings": "Voicings"
+      "voicings": "Voicings",
+      "reference": "Reference"
     },
     "item": {
       "keysToSymbol": "Keys → Chord",
-      "symbolToKeys": "Chord → Keys"
+      "symbolToKeys": "Chord → Keys",
+      "dictionary": "Dictionary"
+    }
+  },
+  "dictionary": {
+    "rootLabel": "Key",
+    "hint": "Tap to hear",
+    "voicing": {
+      "root": "Root position",
+      "inversion": "Inversion {{n}}"
+    },
+    "style": {
+      "basic": "Close",
+      "shell": "Shell",
+      "rootless": "Rootless",
+      "quartal": "Quartal"
     }
   },
   "topbar": {

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useSettings, useModuleConfig } from '../store/settings'
 import { Segmented } from './ui/Segmented'
 import { CHORD_CATEGORIES, VOICING_STYLES } from '../core/voicings'
-import type { ExerciseMode } from '../core/exercise'
+import { isExerciseMode, type Route } from '../lib/routes'
 import { cx } from '../lib/cx'
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
@@ -53,7 +53,11 @@ function ToggleChips({
   )
 }
 
-export function SettingsPanel({ mode, onClose }: { mode: ExerciseMode; onClose: () => void }) {
+export function SettingsPanel({ route, onClose }: { route: Route; onClose: () => void }) {
+  // No dicionário (referência) não há exercício: mostra só o áudio; as demais opções
+  // (fundamental, acordes, estilos, nome das notas) configuram o treino e ficam ocultas.
+  const isExercise = isExerciseMode(route)
+  const mode = isExercise ? route : 'keysToSymbol'
   const audioEnabled = useSettings((s) => s.audioEnabled)
   const setAudioEnabled = useSettings((s) => s.setAudioEnabled)
   const { showNoteName } = useModuleConfig(mode)
@@ -95,64 +99,70 @@ export function SettingsPanel({ mode, onClose }: { mode: ExerciseMode; onClose: 
             />
           </Row>
 
-          <Row label={t('settings.root')}>
-            <Segmented
-              size="sm"
-              value={rootMode}
-              onChange={setRootMode}
-              options={[
-                { value: 'C', label: t('settings.rootC') },
-                { value: 'random', label: t('settings.rootRandom') },
-              ]}
-            />
-          </Row>
-        </div>
-        <p className="mt-1 text-xs text-faint">{t('settings.rootHelp')}</p>
-
-        <div className="mt-2 border-t border-line pt-3">
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
-            {t('settings.moduleSection')}
-          </h3>
-          <div className="divide-y divide-line">
-            <Row label={t('settings.showNoteName')}>
+          {isExercise && (
+            <Row label={t('settings.root')}>
               <Segmented
                 size="sm"
-                value={showNoteName ? 'on' : 'off'}
-                onChange={(v) => setShowNoteName(mode, v === 'on')}
+                value={rootMode}
+                onChange={setRootMode}
                 options={[
-                  { value: 'on', label: t('settings.yes') },
-                  { value: 'off', label: t('settings.no') },
+                  { value: 'C', label: t('settings.rootC') },
+                  { value: 'random', label: t('settings.rootRandom') },
                 ]}
               />
             </Row>
-          </div>
+          )}
         </div>
+        {isExercise && <p className="mt-1 text-xs text-faint">{t('settings.rootHelp')}</p>}
 
-        <div className="mt-2 border-t border-line pt-3">
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
-            {t('settings.categoriesSection')}
-          </h3>
-          <ToggleChips
-            ids={CHORD_CATEGORIES.map((c) => c.id)}
-            active={chordCategories}
-            onToggle={toggleChordCategory}
-            labelKey="chordCategory"
-          />
-          <p className="mt-1 text-xs text-faint">{t('settings.categoriesHelp')}</p>
-        </div>
+        {isExercise && (
+          <>
+            <div className="mt-2 border-t border-line pt-3">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
+                {t('settings.moduleSection')}
+              </h3>
+              <div className="divide-y divide-line">
+                <Row label={t('settings.showNoteName')}>
+                  <Segmented
+                    size="sm"
+                    value={showNoteName ? 'on' : 'off'}
+                    onChange={(v) => setShowNoteName(mode, v === 'on')}
+                    options={[
+                      { value: 'on', label: t('settings.yes') },
+                      { value: 'off', label: t('settings.no') },
+                    ]}
+                  />
+                </Row>
+              </div>
+            </div>
 
-        <div className="mt-2 border-t border-line pt-3">
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
-            {t('settings.stylesSection')}
-          </h3>
-          <ToggleChips
-            ids={VOICING_STYLES}
-            active={voicingStyles}
-            onToggle={toggleVoicingStyle}
-            labelKey="voicingStyle"
-          />
-          <p className="mt-1 text-xs text-faint">{t('settings.stylesHelp')}</p>
-        </div>
+            <div className="mt-2 border-t border-line pt-3">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
+                {t('settings.categoriesSection')}
+              </h3>
+              <ToggleChips
+                ids={CHORD_CATEGORIES.map((c) => c.id)}
+                active={chordCategories}
+                onToggle={toggleChordCategory}
+                labelKey="chordCategory"
+              />
+              <p className="mt-1 text-xs text-faint">{t('settings.categoriesHelp')}</p>
+            </div>
+
+            <div className="mt-2 border-t border-line pt-3">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
+                {t('settings.stylesSection')}
+              </h3>
+              <ToggleChips
+                ids={VOICING_STYLES}
+                active={voicingStyles}
+                onToggle={toggleVoicingStyle}
+                labelKey="voicingStyle"
+              />
+              <p className="mt-1 text-xs text-faint">{t('settings.stylesHelp')}</p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

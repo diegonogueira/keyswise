@@ -1,11 +1,27 @@
 {
   "nav": {
     "group": {
-      "voicings": "Voicings"
+      "voicings": "Voicings",
+      "reference": "Referência"
     },
     "item": {
       "keysToSymbol": "Teclas → Cifra",
-      "symbolToKeys": "Cifra → Teclas"
+      "symbolToKeys": "Cifra → Teclas",
+      "dictionary": "Dicionário"
+    }
+  },
+  "dictionary": {
+    "rootLabel": "Tom",
+    "hint": "Toque para ouvir",
+    "voicing": {
+      "root": "Fundamental",
+      "inversion": "{{n}}ª inversão"
+    },
+    "style": {
+      "basic": "Fechado",
+      "shell": "Shell",
+      "rootless": "Rootless",
+      "quartal": "Quartal"
     }
   },
   "topbar": {

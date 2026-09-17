@@ -1,19 +1,19 @@
-import { Music2, Grid2x2 } from 'lucide-react'
+import { Music2, Grid2x2, BookOpen } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { ExerciseMode } from '../core/exercise'
+import type { Route } from '../lib/routes'
 import { setLanguage } from '../i18n'
 import { cx } from '../lib/cx'
 
 interface SidebarProps {
-  mode: ExerciseMode
-  onSelect: (m: ExerciseMode) => void
+  route: Route
+  onSelect: (r: Route) => void
   /** drawer aberto (apenas mobile) */
   open: boolean
   onClose: () => void
 }
 
 interface Item {
-  mode: ExerciseMode
+  route: Route
   icon: typeof Music2
 }
 
@@ -21,9 +21,13 @@ const GROUPS: { titleKey: string; items: Item[] }[] = [
   {
     titleKey: 'nav.group.voicings',
     items: [
-      { mode: 'keysToSymbol', icon: Music2 },
-      { mode: 'symbolToKeys', icon: Grid2x2 },
+      { route: 'keysToSymbol', icon: Music2 },
+      { route: 'symbolToKeys', icon: Grid2x2 },
     ],
+  },
+  {
+    titleKey: 'nav.group.reference',
+    items: [{ route: 'dictionary', icon: BookOpen }],
   },
 ]
 
@@ -51,7 +55,7 @@ function LangSwitcher() {
   )
 }
 
-function Nav({ mode, onSelect }: { mode: ExerciseMode; onSelect: (m: ExerciseMode) => void }) {
+function Nav({ route, onSelect }: { route: Route; onSelect: (r: Route) => void }) {
   const { t } = useTranslation()
   return (
     <nav className="flex flex-col gap-5">
@@ -62,13 +66,13 @@ function Nav({ mode, onSelect }: { mode: ExerciseMode; onSelect: (m: ExerciseMod
           </h2>
           <ul className="flex flex-col gap-0.5">
             {group.items.map((item) => {
-              const active = mode === item.mode
+              const active = route === item.route
               const Icon = item.icon
               return (
-                <li key={item.mode}>
+                <li key={item.route}>
                   <button
                     type="button"
-                    onClick={() => onSelect(item.mode)}
+                    onClick={() => onSelect(item.route)}
                     aria-current={active ? 'page' : undefined}
                     className={cx(
                       'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors',
@@ -78,7 +82,7 @@ function Nav({ mode, onSelect }: { mode: ExerciseMode; onSelect: (m: ExerciseMod
                     )}
                   >
                     <Icon size={16} className="shrink-0" />
-                    {t(`nav.item.${item.mode}`)}
+                    {t(`nav.item.${item.route}`)}
                   </button>
                 </li>
               )
@@ -91,13 +95,13 @@ function Nav({ mode, onSelect }: { mode: ExerciseMode; onSelect: (m: ExerciseMod
   )
 }
 
-export function Sidebar({ mode, onSelect, open, onClose }: SidebarProps) {
+export function Sidebar({ route, onSelect, open, onClose }: SidebarProps) {
   return (
     <>
       {/* coluna fixa em telas largas (desktop) */}
       <aside className="hidden w-60 shrink-0 border-r border-line bg-surface lg:block">
         <div className="sticky top-[57px] p-3">
-          <Nav mode={mode} onSelect={onSelect} />
+          <Nav route={route} onSelect={onSelect} />
         </div>
       </aside>
 
@@ -113,9 +117,9 @@ export function Sidebar({ mode, onSelect, open, onClose }: SidebarProps) {
             }}
           >
             <Nav
-              mode={mode}
-              onSelect={(m) => {
-                onSelect(m)
+              route={route}
+              onSelect={(r) => {
+                onSelect(r)
                 onClose()
               }}
             />
