@@ -1,6 +1,6 @@
-<!-- O ícone do sightwise: a lupa andando pela partitura, com a colcheia em foco.
-     Paleta Noite (índigo profundo + lavanda): de propósito, NÃO é o roxo dos irmãos — o
-     sightwise tem identidade própria. É também o favicon (public/favicon.svg é cópia). -->
+<!-- O ícone do sheetwise: a lupa andando pela partitura, com a colcheia em foco.
+     Paleta Noite da família *wise (wisekit, guia/01-identidade.md): ladrilho #1e1b4b, arte #e0e7ff
+     e detalhes #a5b4fc. É também o favicon (public/favicon.svg é cópia, gerada pelo gen-icons.sh). -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
     <clipPath id="lente"><circle cx="34" cy="27" r="13.6"/></clipPath>
