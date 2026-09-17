@@ -56,22 +56,24 @@
     "aria": {
       "close": "Fechar"
     },
+    "general": "Geral",
+    "generalHelp": "Vale para os dois exercícios. Com a fundamental aleatória, ela é sorteada e sempre anunciada na questão.",
+    "generalHelpDictionary": "Vale para o app inteiro. Os ajustes do treino aparecem num exercício.",
+    "on": "Sim",
+    "off": "Não",
     "audio": "Áudio",
-    "audioOn": "Ligado",
-    "audioOff": "Desligado",
-    "moduleSection": "Neste módulo",
     "showNoteName": "Mostrar nome das notas",
-    "yes": "Sim",
-    "no": "Não",
-    "rootSection": "Fundamental",
     "root": "Fundamental",
     "rootC": "C fixo",
     "rootRandom": "Aleatória",
-    "rootHelp": "Com \"Aleatória\", a fundamental é sorteada e sempre anunciada na questão.",
     "categoriesSection": "Acordes",
     "categoriesHelp": "Escolha quais tipos de acorde aparecem no exercício (pode combinar; ao menos um).",
     "stylesSection": "Estilos de voicing",
-    "stylesHelp": "Escolha quais formas de voicing praticar. Se um acorde não tiver o estilo marcado, cai no voicing básico."
+    "stylesHelp": "Escolha quais formas de voicing praticar. Se um acorde não tiver o estilo marcado, cai no voicing básico.",
+    "moduleHelp": "Cada exercício lembra se mostra o nome das notas.",
+    "factory": "Restaurar padrões",
+    "factoryConfirm": "Confirmar?",
+    "factoryHelp": "Volta este exercício, os acordes e os estilos como vêm de fábrica. O som e a fundamental ficam."
   },
   "chordCategory": {
     "triads": "Tríades",
@@ -89,6 +91,12 @@
   },
   "lang": {
     "label": "Idioma"
+  },
+  "resetAll": {
+    "nav": "Redefinir tudo",
+    "ask": "Volta tudo como veio de fábrica: os dois exercícios, os acordes, os estilos, o som e a fundamental. O idioma fica.",
+    "yes": "Redefinir",
+    "no": "Cancelar"
   },
   "about": {
     "title": "Sobre",

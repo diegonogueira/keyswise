@@ -1,8 +1,10 @@
-import { Music2, Grid2x2, BookOpen, Info } from 'lucide-react'
+import { Music2, Grid2x2, BookOpen, Info, RotateCcw } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Route } from '../lib/routes'
 import { setLanguage } from '../i18n'
 import { cx } from '../lib/cx'
+import { useSettings } from '../store/settings'
 
 interface SidebarProps {
   route: Route
@@ -58,6 +60,57 @@ function LangSwitcher() {
   )
 }
 
+/**
+ * "Redefinir tudo": o app como veio de fábrica (ajustes gerais, os dois exercícios, acordes e
+ * estilos), com confirmação que explica o alcance. O idioma não é configuração de treino e fica.
+ */
+function ResetAll() {
+  const { t } = useTranslation()
+  const resetAll = useSettings((s) => s.resetAll)
+  const [asking, setAsking] = useState(false)
+
+  useEffect(() => {
+    if (!asking) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setAsking(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [asking])
+
+  if (!asking) {
+    return (
+      <button
+        type="button"
+        onClick={() => setAsking(true)}
+        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-muted transition-colors hover:bg-line hover:text-ink"
+      >
+        <RotateCcw size={16} className="shrink-0" />
+        {t('resetAll.nav')}
+      </button>
+    )
+  }
+  return (
+    <div role="group" aria-label={t('resetAll.nav')} className="rounded-lg bg-wrong-soft p-2.5 text-xs text-wrong">
+      <p className="leading-snug">{t('resetAll.ask')}</p>
+      <div className="mt-2 flex gap-1.5">
+        <button
+          type="button"
+          autoFocus
+          onClick={() => {
+            resetAll()
+            setAsking(false)
+          }}
+          className="rounded-md bg-wrong px-2.5 py-1 font-medium text-white"
+        >
+          {t('resetAll.yes')}
+        </button>
+        <button type="button" onClick={() => setAsking(false)} className="rounded-md px-2.5 py-1 hover:bg-surface">
+          {t('resetAll.no')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 type NavProps = Pick<SidebarProps, 'route' | 'onSelect' | 'about' | 'onAbout'>
 
 function Nav({ route, onSelect, about, onAbout }: NavProps) {
@@ -108,6 +161,7 @@ function Nav({ route, onSelect, about, onAbout }: NavProps) {
           <Info size={16} className="shrink-0" />
           {t('about.nav')}
         </button>
+        <ResetAll />
         <LangSwitcher />
       </div>
     </nav>

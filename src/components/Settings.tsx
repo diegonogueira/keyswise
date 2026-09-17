@@ -1,76 +1,92 @@
-import type { ReactNode } from 'react'
+// Toda a configuração mora aqui (nada de ajuste solto na tela do exercício), em escopos, de
+// cima para baixo:
+// - GERAL: vale para o app inteiro (som e fundamental);
+// - o EXERCÍCIO aberto: o nome das notas (cada exercício lembra o seu) e os acordes e estilos
+//   praticados (os dois exercícios dividem esses);
+// - "Restaurar padrões", por último. "Redefinir tudo" mora no menu.
+// No dicionário não há exercício: só o som.
+
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useSettings, useModuleConfig } from '../store/settings'
-import { Segmented } from './ui/Segmented'
 import { CHORD_CATEGORIES, VOICING_STYLES } from '../core/voicings'
+import type { ExerciseMode } from '../core/exercise'
 import { isExerciseMode, type Route } from '../lib/routes'
-import { cx } from '../lib/cx'
+import { useModuleConfig, useSettings } from '../store/settings'
+import { Chip } from './settings/Chip'
+import { FactoryReset } from './settings/FactoryReset'
+import { Row } from './settings/Row'
+import { Section } from './settings/Section'
+import { Segmented } from './ui/Segmented'
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-4 py-3">
-      <span className="text-sm text-muted">{label}</span>
-      {children}
-    </div>
-  )
-}
-
-function ToggleChips({
-  ids,
-  active,
-  onToggle,
-  labelKey,
-}: {
-  ids: readonly string[]
-  active: string[]
-  onToggle: (id: string) => void
-  labelKey: string
-}) {
+function useOnOff() {
   const { t } = useTranslation()
-  return (
-    <div className="flex flex-wrap gap-1.5 py-2">
-      {ids.map((id) => {
-        const on = active.includes(id)
-        return (
-          <button
-            key={id}
-            type="button"
-            onClick={() => onToggle(id)}
-            aria-pressed={on}
-            className={cx(
-              'rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors',
-              on
-                ? 'border-accent bg-accent-soft text-accent'
-                : 'border-line text-muted hover:border-accent hover:text-ink',
-            )}
-          >
-            {t(`${labelKey}.${id}`)}
-          </button>
-        )
-      })}
-    </div>
-  )
+  return [
+    { value: 'on' as const, label: t('settings.on') },
+    { value: 'off' as const, label: t('settings.off') },
+  ]
 }
 
-export function SettingsPanel({ route, onClose }: { route: Route; onClose: () => void }) {
-  // No dicionário (referência) não há exercício: mostra só o áudio; as demais opções
-  // (fundamental, acordes, estilos, nome das notas) configuram o treino e ficam ocultas.
-  const isExercise = isExerciseMode(route)
-  const mode = isExercise ? route : 'keysToSymbol'
-  const audioEnabled = useSettings((s) => s.audioEnabled)
-  const setAudioEnabled = useSettings((s) => s.setAudioEnabled)
+/** Ajustes do exercício aberto. */
+function ExerciseSettings({ mode }: { mode: ExerciseMode }) {
   const { showNoteName } = useModuleConfig(mode)
   const setShowNoteName = useSettings((s) => s.setShowNoteName)
-  const rootMode = useSettings((s) => s.rootMode)
-  const setRootMode = useSettings((s) => s.setRootMode)
   const chordCategories = useSettings((s) => s.chordCategories)
   const toggleChordCategory = useSettings((s) => s.toggleChordCategory)
   const voicingStyles = useSettings((s) => s.voicingStyles)
   const toggleVoicingStyle = useSettings((s) => s.toggleVoicingStyle)
+  const onOff = useOnOff()
   const { t } = useTranslation()
 
   return (
+    <>
+      <Section title={t(`nav.item.${mode}`)} help={t('settings.moduleHelp')}>
+        <div className="divide-y divide-line">
+          <Row label={t('settings.showNoteName')}>
+            <Segmented
+              size="sm"
+              value={showNoteName ? 'on' : 'off'}
+              onChange={(v) => setShowNoteName(mode, v === 'on')}
+              options={onOff}
+            />
+          </Row>
+        </div>
+      </Section>
+
+      <Section title={t('settings.categoriesSection')} help={t('settings.categoriesHelp')}>
+        <div className="flex flex-wrap gap-1.5 py-2">
+          {CHORD_CATEGORIES.map((c) => (
+            <Chip key={c.id} on={chordCategories.includes(c.id)} onClick={() => toggleChordCategory(c.id)}>
+              {t(`chordCategory.${c.id}`)}
+            </Chip>
+          ))}
+        </div>
+      </Section>
+
+      <Section title={t('settings.stylesSection')} help={t('settings.stylesHelp')}>
+        <div className="flex flex-wrap gap-1.5 py-2">
+          {VOICING_STYLES.map((id) => (
+            <Chip key={id} on={voicingStyles.includes(id)} onClick={() => toggleVoicingStyle(id)}>
+              {t(`voicingStyle.${id}`)}
+            </Chip>
+          ))}
+        </div>
+      </Section>
+    </>
+  )
+}
+
+export function SettingsPanel({ route, onClose }: { route: Route; onClose: () => void }) {
+  const isExercise = isExerciseMode(route)
+  const audioEnabled = useSettings((s) => s.audioEnabled)
+  const setAudioEnabled = useSettings((s) => s.setAudioEnabled)
+  const rootMode = useSettings((s) => s.rootMode)
+  const setRootMode = useSettings((s) => s.setRootMode)
+  const resetModule = useSettings((s) => s.resetModule)
+  const onOff = useOnOff()
+  const { t } = useTranslation()
+
+  return (
+    // bottom-sheet no celular, centrado a partir de `sm`
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div className="relative max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-surface p-5 shadow-xl sm:rounded-2xl">
@@ -86,81 +102,37 @@ export function SettingsPanel({ route, onClose }: { route: Route; onClose: () =>
           </button>
         </div>
 
-        <div className="divide-y divide-line">
-          <Row label={t('settings.audio')}>
-            <Segmented
-              size="sm"
-              value={audioEnabled ? 'on' : 'off'}
-              onChange={(v) => setAudioEnabled(v === 'on')}
-              options={[
-                { value: 'on', label: t('settings.audioOn') },
-                { value: 'off', label: t('settings.audioOff') },
-              ]}
-            />
-          </Row>
-
-          {isExercise && (
-            <Row label={t('settings.root')}>
+        <Section first title={t('settings.general')} help={t(isExercise ? 'settings.generalHelp' : 'settings.generalHelpDictionary')}>
+          <div className="divide-y divide-line">
+            <Row label={t('settings.audio')}>
               <Segmented
                 size="sm"
-                value={rootMode}
-                onChange={setRootMode}
-                options={[
-                  { value: 'C', label: t('settings.rootC') },
-                  { value: 'random', label: t('settings.rootRandom') },
-                ]}
+                value={audioEnabled ? 'on' : 'off'}
+                onChange={(v) => setAudioEnabled(v === 'on')}
+                options={onOff}
               />
             </Row>
-          )}
-        </div>
-        {isExercise && <p className="mt-1 text-xs text-faint">{t('settings.rootHelp')}</p>}
+            {isExercise && (
+              <Row label={t('settings.root')}>
+                <Segmented
+                  size="sm"
+                  value={rootMode}
+                  onChange={setRootMode}
+                  options={[
+                    { value: 'C', label: t('settings.rootC') },
+                    { value: 'random', label: t('settings.rootRandom') },
+                  ]}
+                />
+              </Row>
+            )}
+          </div>
+        </Section>
 
         {isExercise && (
           <>
-            <div className="mt-2 border-t border-line pt-3">
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
-                {t('settings.moduleSection')}
-              </h3>
-              <div className="divide-y divide-line">
-                <Row label={t('settings.showNoteName')}>
-                  <Segmented
-                    size="sm"
-                    value={showNoteName ? 'on' : 'off'}
-                    onChange={(v) => setShowNoteName(mode, v === 'on')}
-                    options={[
-                      { value: 'on', label: t('settings.yes') },
-                      { value: 'off', label: t('settings.no') },
-                    ]}
-                  />
-                </Row>
-              </div>
-            </div>
-
-            <div className="mt-2 border-t border-line pt-3">
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
-                {t('settings.categoriesSection')}
-              </h3>
-              <ToggleChips
-                ids={CHORD_CATEGORIES.map((c) => c.id)}
-                active={chordCategories}
-                onToggle={toggleChordCategory}
-                labelKey="chordCategory"
-              />
-              <p className="mt-1 text-xs text-faint">{t('settings.categoriesHelp')}</p>
-            </div>
-
-            <div className="mt-2 border-t border-line pt-3">
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
-                {t('settings.stylesSection')}
-              </h3>
-              <ToggleChips
-                ids={VOICING_STYLES}
-                active={voicingStyles}
-                onToggle={toggleVoicingStyle}
-                labelKey="voicingStyle"
-              />
-              <p className="mt-1 text-xs text-faint">{t('settings.stylesHelp')}</p>
-            </div>
+            <ExerciseSettings mode={route} />
+            {/* por último: é a ação mais drástica do modal e desfaz o que vem acima */}
+            <FactoryReset onReset={() => resetModule(route)} />
           </>
         )}
       </div>

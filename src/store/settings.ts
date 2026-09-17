@@ -36,6 +36,20 @@ function patchModule(
   return next
 }
 
+/** Os ajustes gerais de fábrica (valem para o app inteiro). */
+const GENERAL_DEFAULTS = {
+  audioEnabled: true,
+  rootMode: 'C' as RootMode,
+}
+
+/**
+ * Os acordes e estilos de fábrica. Os dois exercícios dividem essa escolha e ela só aparece na
+ * seção deles, então "Restaurar padrões" num exercício também a devolve ao padrão.
+ */
+function voicingDefaults() {
+  return { chordCategories: ['triads'], voicingStyles: [...VOICING_STYLES] as string[] }
+}
+
 interface SettingsState {
   // --- globais ---
   audioEnabled: boolean
@@ -53,16 +67,21 @@ interface SettingsState {
   toggleChordCategory: (id: string) => void
   toggleVoicingStyle: (id: string) => void
   setRootMode: (v: RootMode) => void
+  /**
+   * "Restaurar padrões" de um exercício: o nome das notas dele e os acordes e estilos (que só
+   * aparecem na seção dos exercícios). O som, a fundamental e o outro exercício ficam.
+   */
+  resetModule: (mode: ExerciseMode) => void
+  /** "Redefinir tudo": ajustes gerais, os dois exercícios, acordes e estilos. O idioma fica */
+  resetAll: () => void
 }
 
 export const useSettings = create<SettingsState>()(
   persist(
     (set) => ({
-      audioEnabled: true,
+      ...GENERAL_DEFAULTS,
       modules: modulesFrom(DEFAULT_MODULE),
-      chordCategories: ['triads'],
-      voicingStyles: [...VOICING_STYLES],
-      rootMode: 'C',
+      ...voicingDefaults(),
       setAudioEnabled: (audioEnabled) => set({ audioEnabled }),
       setShowNoteName: (mode, showNoteName) =>
         set((s) => ({ modules: patchModule(s.modules, mode, { showNoteName }) })),
@@ -81,6 +100,9 @@ export const useSettings = create<SettingsState>()(
           return { voicingStyles: next.length ? next : s.voicingStyles }
         }),
       setRootMode: (rootMode) => set({ rootMode }),
+      resetModule: (mode) =>
+        set((s) => ({ modules: patchModule(s.modules, mode, DEFAULT_MODULE), ...voicingDefaults() })),
+      resetAll: () => set({ ...GENERAL_DEFAULTS, modules: modulesFrom(DEFAULT_MODULE), ...voicingDefaults() }),
     }),
     {
       name: 'keyswise-settings',

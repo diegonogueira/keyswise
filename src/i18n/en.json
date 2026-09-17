@@ -56,22 +56,24 @@
     "aria": {
       "close": "Close"
     },
+    "general": "General",
+    "generalHelp": "Applies to both exercises. With a random root, it is drawn for each question and always announced.",
+    "generalHelpDictionary": "Applies to the whole app. Practice settings show up in an exercise.",
+    "on": "Yes",
+    "off": "No",
     "audio": "Audio",
-    "audioOn": "On",
-    "audioOff": "Off",
-    "moduleSection": "This module",
     "showNoteName": "Show note names",
-    "yes": "Yes",
-    "no": "No",
-    "rootSection": "Root",
     "root": "Root",
     "rootC": "Fixed C",
     "rootRandom": "Random",
-    "rootHelp": "With \"Random\", the root is drawn each question and always announced.",
     "categoriesSection": "Chords",
     "categoriesHelp": "Choose which chord types appear (combine freely; at least one).",
     "stylesSection": "Voicing styles",
-    "stylesHelp": "Choose which voicing shapes to practice. If a chord lacks the checked style, it falls back to the basic voicing."
+    "stylesHelp": "Choose which voicing shapes to practice. If a chord lacks the checked style, it falls back to the basic voicing.",
+    "moduleHelp": "Each exercise remembers whether it shows note names.",
+    "factory": "Restore defaults",
+    "factoryConfirm": "Confirm?",
+    "factoryHelp": "Puts this exercise, the chords and the styles back as they came. Sound and root stay."
   },
   "chordCategory": {
     "triads": "Triads",
@@ -89,6 +91,12 @@
   },
   "lang": {
     "label": "Language"
+  },
+  "resetAll": {
+    "nav": "Reset everything",
+    "ask": "Puts everything back as it came: both exercises, chords, styles, sound and root. Your language stays.",
+    "yes": "Reset",
+    "no": "Cancel"
   },
   "about": {
     "title": "About",
