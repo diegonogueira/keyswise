@@ -40,6 +40,9 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk npm run android:apk
 npm run android:install
 ```
 
+Deploy no homelab: `./bin/deploy` (Docker + nginx, porta `KEYSWISE_PORT`, padrão 8084 — reservada
+no wisekit).
+
 ## Estrutura
 
 ```
