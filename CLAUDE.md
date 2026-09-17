@@ -1,96 +1,108 @@
-# Keyswise — guia para o Claude
+# CLAUDE.md
 
-App de treino de **voicings de acorde no piano**, irmão do Fretwise (`../fretwise`). Mesma
-arquitetura; a diferença é o domínio (voicings, teclado) e dois exercícios.
+Keyswise é um app web-first (React + Vite) de treino de **voicings de acorde no piano**: dois
+exercícios (Teclas → Cifra e Cifra → Teclas) e um dicionário de referência. Veja o `README.md`
+para o produto. As regras da família *wise (identidade, casca, modal de ajustes, estado, i18n,
+stack, Android, infra e fluxo de tickets) vêm do plugin `wise` (repo **wisekit**) e **não se
+repetem aqui** — este arquivo guarda só o que é do keyswise.
 
-## Stack e comandos
-
-React 18 + TypeScript (strict) · Vite 8 · Tailwind v4 (`@tailwindcss/vite`, sem config) ·
-Zustand (persist/localStorage) · react-i18next (PT padrão + EN) · smplr (soundfont de piano) ·
-Capacitor (Android planejado).
+## Comandos
 
 ```bash
-npm run dev            # http://localhost:5173
-npm run build          # tsc --noEmit && vite build  (type-check faz parte do build)
-npm test               # vitest run  (só o core puro)
 npx vitest run src/core/voicings.test.ts   # um arquivo
+npx vitest run -t "rootless"                # um teste pelo nome
+
+node scripts/shot.mjs [url]   # fotos + erros de console num Chromium de verdade (dev rodando)
 ```
 
-Sem ESLint e sem testes de UI: só `src/core/*.test.ts` (Vitest, `environment: 'node'`).
+`npm test` cobre o núcleo: voicings, cifras, teclado, geração das questões e o dicionário.
 
-## Máxima da arquitetura
+## Invariantes
 
-`src/core/` é a fonte única da verdade e é **puro** (sem React). Teclado, exercício e áudio
-derivam a identidade das notas dele — é o que os mantém em acordo.
+- **Desenhe a partir dos `degrees`; valide contra o pitch-class set da QUALIDADE.** O conjunto que
+  o usuário casa vem dos `intervals` da `ChordQuality`, nunca dos `degrees` do shape (que podem
+  omitir a fundamental: um rootless responde pelo cifrado completo). `voicings.test.ts` cobra que
+  os pitch classes de todo shape ⊆ os da sua qualidade — quebrou, o shape está na qualidade errada.
+- **MIDI é a língua franca.** Uma nota é um inteiro MIDI (C4 = 60), `pitchClass = midi % 12`, e a
+  validação é por conjunto de pitch classes (`pcSetKey`), agnóstica a oitava e inversão.
+- **`keyCenterX` é a fonte única da matemática de x** do teclado: o render do SVG e o auto-scroll
+  a chamam, então nunca discordam.
+- **Exercício e dicionário realizam o voicing do mesmo jeito** (`realizeVoicing` + `alignLowest` na
+  `VOICING_ANCHOR`): um shape no dicionário e o mesmo shape numa questão caem no mesmo registro.
+- **A geração nunca fica sem voicing**: `voicingsFor` cai em todos os voicings da qualidade se o
+  estilo marcado não existir para ela.
 
-- **MIDI é a língua franca.** Uma nota é um inteiro MIDI (C4 = 60). `pitchClass = midi % 12`.
-- **Validação por conjunto de pitch classes** (`pcSetKey`), agnóstica a oitava/inversão.
+## Arquitetura
 
-## O modelo de voicings (`src/core/voicings.ts`)
+`src/core/` é puro e é a fonte única da verdade: teclado, exercício, dicionário e áudio derivam a
+identidade das notas dele.
 
-O ponto mais delicado. Uma **qualidade** (`ChordQuality`) carrega a identidade do cifrado e os
-`intervals` = o pitch-class set **completo** do acorde (base da validação). Um **voicing**
-(`Voicing`) é um shape concreto no teclado (`degrees` = semitons a partir da fundamental, em
-ordem de execução; **rootless omite o 0**; inversões sobem notas graves uma oitava).
+### O modelo de voicings (`src/core/voicings.ts`)
 
-⚠️ **INVARIANTE central:** o conjunto que o usuário casa vem dos `intervals` da QUALIDADE, nunca
-dos `degrees` do shape (que podem omitir a fundamental — um voicing rootless ainda responde pelo
-cifrado completo). Ou seja: **desenhe o teclado a partir de `degrees`; valide contra o pitch-class
-set da qualidade.** Consequência prática: um voicing rootless com a 9ª pertence à qualidade de
-9ª (ex.: `maj9`), não à de 7ª. O teste `voicings.test.ts` garante que os pitch classes de todo
-shape ⊆ os da sua qualidade — se você adicionar um voicing e ele quebrar isso, o shape está
-atribuído à qualidade errada.
+Uma **qualidade** (`ChordQuality`) carrega a identidade do cifrado e os `intervals` = o
+pitch-class set **completo** do acorde (base da validação). Um **voicing** (`Voicing`) é um shape
+concreto no teclado: `degrees` = semitons a partir da fundamental, em ordem de execução;
+**rootless omite o 0**; inversões sobem notas graves uma oitava. Consequência do invariante: um
+voicing rootless com a 9ª pertence à qualidade de 9ª (ex.: `maj9`), não à de 7ª.
 
-Categorias (`CHORD_CATEGORIES`) particionam as qualidades (toggle na config). Estilos
-(`VOICING_STYLES`: basic/shell/rootless/quartal) são preferência: `voicingsFor` cai em todos os
-voicings da qualidade se o estilo marcado não existir — a geração nunca fica sem voicing.
+Categorias (`CHORD_CATEGORIES`) particionam as qualidades (escolhidas no modal). Estilos
+(`VOICING_STYLES`: basic/shell/rootless/quartal) são preferência.
 
-A cifra é construída em `src/core/symbol.ts` (estilo jazz internacional: `Cmaj7`, `C7(9,13)`,
+A cifra é construída em `src/core/symbol.ts`, no estilo jazz internacional (`Cmaj7`, `C7(9,13)`,
 `C7(♭9)`, `Cm7♭5`, `C°7`, `C6/9`, `C7alt`). Toda a grafia da casa mora lá.
 
-## O teclado (`src/core/piano.ts` + `src/components/Piano/`)
+### O teclado (`src/core/piano.ts` + `src/components/Piano/`)
 
-Uma "posição" é só um número MIDI (sem corda/casa). `keyCenterX` é a fonte **única** da
-matemática de x: tanto o render do SVG quanto o auto-scroll a chamam, então nunca discordam
-(lição do `fretCenterX` do fretwise). As pretas sentam na fronteira entre as brancas vizinhas.
+Uma "posição" é só um número MIDI (sem corda nem casa). As pretas sentam na fronteira entre as
+brancas vizinhas. `Piano.tsx` é o teclado principal: tamanho natural, `overflow-x-auto`,
+auto-scroll por `focusMidis` para centralizar o destaque, variantes de pino
+accent/selected/correct/wrong/ghost. `KeyboardChoice.tsx` é o teclado pequeno das alternativas e
+do dicionário (escala para caber no cartão, `width=100%`). `windowFor` enquadra um voicing em ~2
+oitavas começando em C.
 
-`Piano.tsx` é o teclado principal (tamanho natural, `overflow-x-auto`, auto-scroll via
-`focusMidis` p/ centralizar o destaque; variantes de pino accent/selected/correct/wrong/ghost —
-mesmos tokens do fretwise). `KeyboardChoice.tsx` é o teclado pequeno das alternativas do modo 2
-(escala p/ caber no tile, `width=100%`). `windowFor` enquadra um voicing em ~2 oitavas em C.
-
-## Exercício (`src/core/exercise.ts` + `src/hooks/useExercise.ts`)
+### Exercício (`src/core/exercise.ts` + `src/hooks/useExercise.ts`)
 
 Dois modos (`EXERCISE_MODES`):
-- **keysToSymbol** (Teclas → Cifra): mostra o voicing; alternativas são cifras de **mesma
-  fundamental**, pitch sets distintos. `checkSymbolAnswer` compara o pc-set completo da qualidade.
+- **keysToSymbol** (Teclas → Cifra): mostra o voicing; as alternativas são cifras de **mesma
+  fundamental**, com pitch sets distintos. `checkSymbolAnswer` compara o pc-set completo da
+  qualidade.
 - **symbolToKeys** (Cifra → Teclas): mostra a cifra; 4 teclados (voicings de outras qualidades na
   mesma fundamental, conjuntos distintos). `checkKeysChoiceAnswer` compara o pc-set do teclado
   escolhido com o do voicing correto (`question.voicing`), que pode ser rootless.
 
-`VoicingConfig.fixedRootPc`: 0 (C fixo) ou `null` (aleatória anunciada). Geração recebe `rng`
-(produção usa `Math.random`; testes usam `mulberry32` semeado — `src/core/rng.ts`).
+`VoicingConfig.fixedRootPc`: 0 (C fixo) ou `null` (aleatória, anunciada na questão). A geração
+recebe `rng` (produção usa `Math.random`; os testes, `mulberry32` semeado — `src/core/rng.ts`).
+`ExerciseView` é o conteúdo dos modos de exercício (teclado principal + painel): mora num
+componente próprio para o `useExercise` só montar nos exercícios, nunca no dicionário.
 
-O `useExercise` espelha o fretwise: estado de sessão + regeneração ao trocar modo/config (guardada
-por um ref de primeira montagem).
+**Gotcha da troca de modo (tela branca):** na navegação o `mode` muda um render antes de o
+`question` regenerar, então por um quadro o painel do novo modo veria a questão do anterior (sem
+`keyChoices`/`symbolChoices`). Hoje há duas defesas: a regeneração roda em `useLayoutEffect` e cada
+corpo do `ExercisePanel` tem um guard (`if (!question.keyChoices) return null`).
 
-⚠️ **Gotcha da troca de modo (tela branca):** na navegação, o `mode` muda um render antes de o
-`question` regenerar — então, por um frame, o painel do novo modo veria a questão do modo anterior
-(sem `keyChoices`/`symbolChoices`) e quebraria. Duas defesas, ambas necessárias: (1) a regeneração
-roda em **`useLayoutEffect`** (antes do paint, sem frame em branco); (2) cada corpo do
-`ExercisePanel` tem um **guard** (`if (!question.keyChoices) return null`) que cobre o render
-anterior ao efeito. Não troque o `useLayoutEffect` por `useEffect` (voltaria a piscar) nem remova
-os guards.
+### Dicionário (`src/core/dictionary.ts` + `src/components/Dictionary.tsx`)
 
-## Verificação de UI
+Página de referência (`/dictionary`): todas as qualidades, agrupadas por categoria, com **todas**
+as variações catalogadas (sem filtro de estilo), realizadas num dos 12 tons. `describeVoicing`
+classifica cada shape pelo id — `-inv{n}` é fundamental (n = 0) ou n-ésima inversão, `-close` é
+estado fundamental, o resto é o estilo com a letra da variante (A/B…). Todas as variações de uma
+qualidade dividem a mesma janela do teclado, para os registros serem comparáveis. Tocar num cartão
+toca o shape. No dicionário o modal mostra só o áudio: as outras opções configuram o treino.
 
-Sem testes de componente. Suba `npm run dev` e dirija o Chromium do sistema com `playwright-core`
-(`import pw from '.../playwright-core'; const { chromium } = pw`; `executablePath: '/usr/bin/chromium'`).
-Ganchos: o teclado tem `aria-label="Teclado de piano"` e as teclas a classe `.key-cell`.
+### Decisões de produto (v1)
 
-## Decisões de produto (v1)
+- Cifra → Teclas é múltipla escolha de teclados (não montar clicando).
+- A fundamental é configurável, com padrão C fixo.
+- Sem pauta nem VexFlow: o alvo é a cifra impressa e o teclado.
 
-- Modo 2: múltipla escolha de teclados (não montar-clicando).
-- Fundamental: configurável, padrão C fixo.
-- Entrega web-first + áudio de piano; `android/` (`cap add android`) fica para depois.
-- Sem pauta/VexFlow: o alvo é a cifra impressa + o teclado.
+## Desvios do guia
+
+Nenhum.
+
+## Verificando UI
+
+Não há teste de componente: `node scripts/shot.mjs [url]` (padrão
+`http://localhost:5173/keys-to-chord`) fotografa retrato, paisagem e desktop no Chromium do
+sistema, responde a primeira alternativa e falha com erro no console. Serve também para
+`/chord-to-keys` e `/dictionary`. Seletores estáveis: `svg[aria-label="Teclado de piano"]` (o
+teclado), `.key-cell` (as teclas clicáveis) e `[data-choice]` (as alternativas).

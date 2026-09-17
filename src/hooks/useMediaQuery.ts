@@ -1,33 +1,24 @@
 import { useEffect, useState } from 'react'
 
-/** Reage a uma media query, re-renderizando quando ela passa a casar (ou não). */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia(query).matches : false,
-  )
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches)
 
   useEffect(() => {
     const mql = window.matchMedia(query)
-    const onChange = () => setMatches(mql.matches)
-    onChange()
-    if (mql.addEventListener) {
-      mql.addEventListener('change', onChange)
-      return () => mql.removeEventListener('change', onChange)
-    }
-    mql.addListener(onChange)
-    return () => mql.removeListener(onChange)
+    const sync = () => setMatches(mql.matches)
+    sync()
+    mql.addEventListener('change', sync)
+    return () => mql.removeEventListener('change', sync)
   }, [query])
 
   return matches
 }
 
 /**
- * Paisagem "curta": celular deitado, onde a **altura** é o recurso escasso. O teto de altura
- * exclui o desktop (também paisagem, mas alto) e o teto de largura exclui janelas largas e
- * baixas. Dispara o layout compacto que cabe numa tela só. `1023.98px` = logo abaixo de `lg`.
+ * Celular deitado: paisagem E pouca altura. Não dá para olhar só a largura — desktop
+ * também é paisagem, e lá sobra altura. O layout compacto encolhe a pauta e põe o
+ * resultado ao lado do botão para tudo caber numa tela.
  */
 export function useShortLandscape(): boolean {
-  return useMediaQuery(
-    '(orientation: landscape) and (max-height: 600px) and (max-width: 1023.98px)',
-  )
+  return useMediaQuery('(orientation: landscape) and (max-height: 500px)')
 }

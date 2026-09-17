@@ -115,6 +115,7 @@ function KeysToSymbolBody({ exercise, compact, nextButton }: BodyProps) {
             <button
               key={`${spec.rootPc}-${spec.qualityId}`}
               type="button"
+              data-choice={symbolOf(spec)}
               disabled={answered}
               onClick={() => exercise.answerSymbol(spec)}
               className={cx(
@@ -195,6 +196,7 @@ function SymbolToKeysBody({ exercise, compact, nextButton }: BodyProps) {
             <button
               key={idx}
               type="button"
+              data-choice={idx}
               disabled={answered}
               onClick={() => exercise.answerChoice(idx)}
               className={cx(
