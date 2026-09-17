@@ -1,17 +1,18 @@
-import { Music2, Grid2x2, BookOpen, Info, RotateCcw } from 'lucide-react'
+import { Music2, Grid2x2, BookOpen, Blocks, Info, RotateCcw } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Route } from '../lib/routes'
 import { setLanguage } from '../i18n'
+import type { View } from '../hooks/useRoute'
 import { cx } from '../lib/cx'
 import { useSettings } from '../store/settings'
 
 interface SidebarProps {
   route: Route
   onSelect: (r: Route) => void
-  /** a página "Sobre" está aberta (o destino não fica marcado) */
-  about: boolean
-  onAbout: () => void
+  /** uma página do menu está aberta (e aí nenhum destino fica marcado) */
+  view: View
+  onOpenPage: (view: Exclude<View, 'practice'>) => void
   /** gaveta aberta (mobile, ou a paisagem curta em qualquer largura) */
   open: boolean
   onClose: () => void
@@ -113,9 +114,11 @@ function ResetAll() {
   )
 }
 
-type NavProps = Pick<SidebarProps, 'route' | 'onSelect' | 'about' | 'onAbout'>
+type NavProps = Pick<SidebarProps, 'route' | 'onSelect' | 'view' | 'onOpenPage'>
 
-function Nav({ route, onSelect, about, onAbout }: NavProps) {
+function Nav({ route, onSelect, view, onOpenPage }: NavProps) {
+  // com uma página do menu aberta, nenhum destino fica marcado
+  const onPage = view !== 'practice'
   const { t } = useTranslation()
   return (
     <nav className="flex flex-col gap-5">
@@ -126,7 +129,7 @@ function Nav({ route, onSelect, about, onAbout }: NavProps) {
           </h2>
           <ul className="flex flex-col gap-0.5">
             {group.items.map((item) => {
-              const active = !about && route === item.route
+              const active = !onPage && route === item.route
               const Icon = item.icon
               return (
                 <li key={item.route}>
@@ -153,15 +156,27 @@ function Nav({ route, onSelect, about, onAbout }: NavProps) {
       <div className="flex flex-col gap-1">
         <button
           type="button"
-          onClick={onAbout}
-          aria-current={about ? 'page' : undefined}
+          onClick={() => onOpenPage('about')}
+          aria-current={view === 'about' ? 'page' : undefined}
           className={cx(
             'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors',
-            about ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-line hover:text-ink',
+            view === 'about' ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-line hover:text-ink',
           )}
         >
           <Info size={16} className="shrink-0" />
           {t('about.nav')}
+        </button>
+        <button
+          type="button"
+          onClick={() => onOpenPage('otherApps')}
+          aria-current={view === 'otherApps' ? 'page' : undefined}
+          className={cx(
+            'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors',
+            view === 'otherApps' ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-line hover:text-ink',
+          )}
+        >
+          <Blocks size={16} className="shrink-0" />
+          {t('otherApps.nav')}
         </button>
         <ResetAll />
         <LangSwitcher />
@@ -170,13 +185,13 @@ function Nav({ route, onSelect, about, onAbout }: NavProps) {
   )
 }
 
-export function Sidebar({ route, onSelect, about, onAbout, open, onClose, compact }: SidebarProps) {
+export function Sidebar({ route, onSelect, view, onOpenPage, open, onClose, compact }: SidebarProps) {
   return (
     <>
       {/* coluna fixa em telas largas */}
       <aside className={cx('hidden w-60 shrink-0 overflow-y-auto border-r border-line bg-surface', compact ? '' : 'lg:block')}>
         <div className="p-3">
-          <Nav route={route} onSelect={onSelect} about={about} onAbout={onAbout} />
+          <Nav route={route} onSelect={onSelect} view={view} onOpenPage={onOpenPage} />
         </div>
       </aside>
 
@@ -197,9 +212,9 @@ export function Sidebar({ route, onSelect, about, onAbout, open, onClose, compac
                 onSelect(r)
                 onClose()
               }}
-              about={about}
-              onAbout={() => {
-                onAbout()
+              view={view}
+              onOpenPage={(page) => {
+                onOpenPage(page)
                 onClose()
               }}
             />

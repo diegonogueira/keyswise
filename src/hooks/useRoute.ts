@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ABOUT_PATH, DEFAULT_ROUTE, isAboutPath, parseRoute, pathForRoute, routeFromPath, type Route } from '../lib/routes'
+import {
+  ABOUT_PATH,
+  DEFAULT_ROUTE,
+  OTHER_APPS_PATH,
+  isAboutPath,
+  isOtherAppsPath,
+  parseRoute,
+  pathForRoute,
+  routeFromPath,
+  type Route,
+} from '../lib/routes'
 
 /** Último destino aberto: não é escolha de treino, é onde o usuário parou. */
 const LAST_KEY = 'keyswise-module'
@@ -12,24 +22,32 @@ function lastRoute(): Route {
   }
 }
 
-/** O estudo (um exercício ou o dicionário) ou a página "Sobre". */
-export type View = 'practice' | 'about'
+/** O estudo (um exercício ou o dicionário) ou uma das páginas do menu. */
+export type View = 'practice' | 'about' | 'otherApps'
 
-const viewOf = (pathname: string): View => (isAboutPath(pathname) ? 'about' : 'practice')
+/** As páginas que não são destino de estudo, cada uma no seu caminho. */
+const PAGES: { view: View; path: string; is: (p: string) => boolean }[] = [
+  { view: 'about', path: ABOUT_PATH, is: isAboutPath },
+  { view: 'otherApps', path: OTHER_APPS_PATH, is: isOtherAppsPath },
+]
+
+const viewOf = (pathname: string): View => PAGES.find((p) => p.is(pathname))?.view ?? 'practice'
 
 export interface RouteState {
   route: Route
   view: View
-  /** abre um destino de estudo (também é como se sai do "Sobre") */
+  /** abre um destino de estudo (também é como se sai das páginas do menu) */
   navigate: (route: Route) => void
-  openAbout: () => void
+  /** abre uma das páginas do menu (Sobre, Outros apps) */
+  openPage: (view: Exclude<View, 'practice'>) => void
 }
 
 /**
  * Roteamento mínimo via History API: a URL é a fonte da verdade do destino ativo. Suporta
  * deep-link, voltar/avançar do navegador e canoniza a URL inicial sem poluir o histórico. Sem
- * destino na URL — "/", que é como o app Android sempre abre — volta ao último aberto. Em
- * `/about` o destino continua o último, que é para onde se volta.
+ * destino na URL — "/", que é como o app Android sempre abre — volta ao último aberto. Nas
+ * páginas do menu (`/about`, `/other-apps`) o destino continua o último, que é para onde se volta
+ * — e nenhuma delas é guardada como destino.
  */
 export function useRoute(): RouteState {
   const [route, setRoute] = useState<Route>(() => routeFromPath(window.location.pathname, lastRoute()))
@@ -37,11 +55,13 @@ export function useRoute(): RouteState {
 
   useEffect(() => {
     const here = window.location.pathname
-    const canonical = isAboutPath(here) ? ABOUT_PATH : pathForRoute(routeFromPath(here, lastRoute()))
+    const page = PAGES.find((p) => p.is(here))
+    const canonical = page ? page.path : pathForRoute(routeFromPath(here, lastRoute()))
     if (here !== canonical) window.history.replaceState(null, '', canonical + window.location.search)
     const sync = () => {
-      if (!isAboutPath(window.location.pathname)) setRoute(routeFromPath(window.location.pathname, lastRoute()))
-      setView(viewOf(window.location.pathname))
+      const path = window.location.pathname
+      if (!PAGES.some((p) => p.is(path))) setRoute(routeFromPath(path, lastRoute()))
+      setView(viewOf(path))
     }
     window.addEventListener('popstate', sync)
     return () => window.removeEventListener('popstate', sync)
@@ -62,10 +82,11 @@ export function useRoute(): RouteState {
     setView('practice')
   }, [])
 
-  const openAbout = useCallback(() => {
-    if (!isAboutPath(window.location.pathname)) window.history.pushState(null, '', ABOUT_PATH)
-    setView('about')
+  const openPage = useCallback((next: Exclude<View, 'practice'>) => {
+    const path = PAGES.find((p) => p.view === next)!.path
+    if (window.location.pathname !== path) window.history.pushState(null, '', path)
+    setView(next)
   }, [])
 
-  return { route, view, navigate, openAbout }
+  return { route, view, navigate, openPage }
 }

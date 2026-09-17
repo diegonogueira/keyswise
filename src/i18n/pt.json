@@ -90,6 +90,12 @@
   "lang": {
     "label": "Idioma"
   },
+  "otherApps": {
+    "nav": "Outros apps",
+    "title": "Conheça os outros apps",
+    "intro": "Apps de estudo da mesma família: mesmo jeito de usar, outro assunto.",
+    "soon": "Ainda não publicados — por enquanto, é só para você saber que existem."
+  },
   "resetAll": {
     "nav": "Redefinir tudo",
     "ask": "Volta tudo como veio de fábrica: os dois exercícios, os acordes, os estilos, o som e a fundamental. O idioma fica.",

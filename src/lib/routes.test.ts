@@ -1,6 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { EXERCISE_MODES } from '../core/exercise'
-import { ABOUT_PATH, DEFAULT_ROUTE, ROUTE_PATH, isAboutPath, isExerciseMode, parseRoute, pathForRoute, routeFromPath, type Route } from './routes'
+import {
+  ABOUT_PATH,
+  DEFAULT_ROUTE,
+  OTHER_APPS_PATH,
+  ROUTE_PATH,
+  isAboutPath,
+  isExerciseMode,
+  isOtherAppsPath,
+  parseRoute,
+  pathForRoute,
+  routeFromPath,
+  type Route,
+} from './routes'
 
 const ROUTES = Object.keys(ROUTE_PATH) as Route[]
 
@@ -47,5 +59,17 @@ describe('rotas', () => {
     for (const r of ROUTES) expect(pathForRoute(r)).not.toBe(ABOUT_PATH)
     expect(isAboutPath(pathForRoute('dictionary'))).toBe(false)
     expect(routeFromPath(ABOUT_PATH, 'dictionary')).toBe('dictionary')
+  })
+
+  it('a página Outros apps também não é destino de estudo', () => {
+    expect(OTHER_APPS_PATH).toBe('/other-apps')
+    expect(isOtherAppsPath(OTHER_APPS_PATH)).toBe(true)
+    expect(isOtherAppsPath(`${OTHER_APPS_PATH}/`)).toBe(true)
+    expect(isOtherAppsPath(ABOUT_PATH)).toBe(false)
+    expect(isAboutPath(OTHER_APPS_PATH)).toBe(false)
+    for (const r of ROUTES) expect(pathForRoute(r)).not.toBe(OTHER_APPS_PATH)
+    // o destino continua o último aberto, que é para onde se volta
+    expect(routeFromPath(OTHER_APPS_PATH, 'dictionary')).toBe('dictionary')
+    expect(parseRoute('otherApps')).toBeNull()
   })
 })

@@ -6,6 +6,7 @@ import { Sidebar } from './components/Sidebar'
 import { ExerciseView } from './components/ExerciseView'
 import { Dictionary } from './components/Dictionary'
 import { AboutPage } from './components/About'
+import { OtherAppsPage } from './components/OtherApps'
 import { useSettings } from './store/settings'
 import { useRoute } from './hooks/useRoute'
 import { useShortLandscape } from './hooks/useMediaQuery'
@@ -24,7 +25,7 @@ const ROUTE_KEYS: Record<Route, string> = {
 
 export default function App() {
   const { t, i18n } = useTranslation()
-  const { route, view, navigate, openAbout } = useRoute()
+  const { route, view, navigate, openPage } = useRoute()
   const audioEnabled = useSettings((s) => s.audioEnabled)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -41,7 +42,8 @@ export default function App() {
     if (audioEnabled) void loadInstrument()
   }, [audioEnabled])
 
-  const title = view === 'about' ? t('about.title') : t(ROUTE_KEYS[route])
+  const title =
+    view === 'about' ? t('about.title') : view === 'otherApps' ? t('otherApps.title') : t(ROUTE_KEYS[route])
   // título da aba: o app e o que está aberto, no idioma corrente
   useEffect(() => {
     document.title = `Keyswise — ${title}`
@@ -78,16 +80,20 @@ export default function App() {
         <Sidebar
           route={route}
           onSelect={navigate}
-          about={view === 'about'}
-          onAbout={openAbout}
+          view={view}
+          onOpenPage={openPage}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           compact={compact}
         />
 
-        {view === 'about' ? (
+        {view !== 'practice' ? (
           <main className="flex min-h-0 w-full min-w-0 flex-1 flex-col">
-            <AboutPage onBack={() => navigate(route)} />
+            {view === 'about' ? (
+              <AboutPage onBack={() => navigate(route)} />
+            ) : (
+              <OtherAppsPage current="keyswise" onBack={() => navigate(route)} />
+            )}
           </main>
         ) : (
           // O conteúdo fica no topo, nunca centrado na vertical: ao responder o painel cresce, e

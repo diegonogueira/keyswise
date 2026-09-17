@@ -45,9 +45,14 @@ export function isExerciseMode(route: Route): route is ExerciseMode {
   return (EXERCISE_MODES as readonly string[]).includes(route)
 }
 
-/** A página "Sobre": não é destino de estudo, e o destino aberto continua o de antes. */
+/** As páginas do menu: não são destino de estudo, e o destino aberto continua o de antes. */
 export const ABOUT_PATH = '/about'
+export const OTHER_APPS_PATH = '/other-apps'
 
 export function isAboutPath(pathname: string): boolean {
   return clean(pathname) === ABOUT_PATH
+}
+
+export function isOtherAppsPath(pathname: string): boolean {
+  return clean(pathname) === OTHER_APPS_PATH
 }
