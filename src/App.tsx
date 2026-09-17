@@ -90,12 +90,12 @@ export default function App() {
             <AboutPage onBack={() => navigate(route)} />
           </main>
         ) : (
-          // O exercício ocupa o centro da altura livre. O nome do destino vive na TopBar (e aqui
-          // só para leitores de tela). `justify-center-safe` centraliza sem cortar o começo — o
-          // dicionário, que é longo, começa no topo e rola por dentro.
+          // O conteúdo fica no topo, nunca centrado na vertical: ao responder o painel cresce, e
+          // centrado o teclado subiria junto (wisekit, W-UI-09). O nome do destino vive na TopBar
+          // (e aqui só para leitores de tela); o dicionário, que é longo, rola por dentro.
           <main
             className={cx(
-              'mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col justify-center-safe overflow-y-auto',
+              'mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col overflow-y-auto',
               compact ? 'gap-2 px-2 py-1' : 'gap-4 px-4 py-5',
             )}
           >
