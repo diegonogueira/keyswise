@@ -1,7 +1,8 @@
-import { Settings as SettingsIcon, Menu, ChevronUp, Piano } from 'lucide-react'
+import { Settings as SettingsIcon, Menu, ChevronUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useHideOnScroll } from '../hooks/useHideOnScroll'
 import { cx } from '../lib/cx'
+import logoUrl from '../assets/brand/icon.svg'
 
 interface TopBarProps {
   onOpenSettings: () => void
@@ -36,7 +37,8 @@ export function TopBar({ onOpenSettings, onToggleSidebar, compact = false, modeT
           >
             <Menu size={18} />
           </button>
-          <Piano size={compact ? 18 : 20} className="shrink-0 text-accent" />
+          {/* a mesma arte do ícone do app e do favicon (o nome ao lado já diz o que é) */}
+          <img src={logoUrl} alt="" aria-hidden className={cx('shrink-0', compact ? 'h-5 w-5' : 'h-6 w-6')} />
           <div className="flex items-baseline gap-2">
             <span className={cx('font-semibold tracking-tight', compact ? 'text-base' : 'text-lg')}>
               Keyswise
