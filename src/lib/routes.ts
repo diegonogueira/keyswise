@@ -20,10 +20,11 @@ const PATH_ROUTE = Object.fromEntries(
   (Object.entries(ROUTE_PATH) as [Route, string][]).map(([route, path]) => [path, route]),
 ) as Record<string, Route>
 
+const clean = (pathname: string) => pathname.replace(/\/+$/, '') || '/'
+
 /** Resolve um pathname para o destino correspondente (cai no padrão se desconhecido). */
 export function routeFromPath(pathname: string): Route {
-  const clean = pathname.replace(/\/+$/, '') || '/'
-  return PATH_ROUTE[clean] ?? DEFAULT_ROUTE
+  return PATH_ROUTE[clean(pathname)] ?? DEFAULT_ROUTE
 }
 
 /** Caminho canônico de um destino. */
@@ -34,4 +35,11 @@ export function pathForRoute(route: Route): string {
 /** O destino é um modo de exercício (e não a página de dicionário)? */
 export function isExerciseMode(route: Route): route is ExerciseMode {
   return (EXERCISE_MODES as readonly string[]).includes(route)
+}
+
+/** A página "Sobre": não é destino de estudo, e o destino aberto continua o de antes. */
+export const ABOUT_PATH = '/about'
+
+export function isAboutPath(pathname: string): boolean {
+  return clean(pathname) === ABOUT_PATH
 }

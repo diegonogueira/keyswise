@@ -6,6 +6,7 @@ import { SettingsPanel } from './components/Settings'
 import { Sidebar } from './components/Sidebar'
 import { ExerciseView } from './components/ExerciseView'
 import { Dictionary } from './components/Dictionary'
+import { AboutPage } from './components/About'
 import { useSettings } from './store/settings'
 import { useRoute } from './hooks/useRoute'
 import { useShortLandscape } from './hooks/useMediaQuery'
@@ -24,7 +25,7 @@ const ROUTE_KEYS: Record<Route, string> = {
 
 export default function App() {
   const { t, i18n } = useTranslation()
-  const [route, navigate] = useRoute()
+  const { route, view, navigate, openAbout } = useRoute()
   const audioEnabled = useSettings((s) => s.audioEnabled)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -39,7 +40,7 @@ export default function App() {
   useEffect(() => {
     if (compact) setHeaderHidden(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route])
+  }, [route, view])
 
   useEffect(() => {
     void syncStatusBar(compact)
@@ -49,9 +50,10 @@ export default function App() {
     if (audioEnabled) void loadInstrument()
   }, [audioEnabled])
 
+  const title = view === 'about' ? t('about.title') : t(ROUTE_KEYS[route])
   useEffect(() => {
-    document.title = `Keyswise — ${t(ROUTE_KEYS[route])}`
-  }, [route, t, i18n.language])
+    document.title = `Keyswise — ${title}`
+  }, [title, i18n.language])
 
   return (
     <div className={cx('flex flex-col', compact ? 'h-[100dvh] overflow-hidden' : 'min-h-screen')}>
@@ -68,7 +70,7 @@ export default function App() {
           onOpenSettings={() => setSettingsOpen(true)}
           onToggleSidebar={() => setSidebarOpen(true)}
           compact={compact}
-          modeTitle={t(ROUTE_KEYS[route])}
+          modeTitle={title}
           onHide={compact ? () => setHeaderHidden(true) : undefined}
         />
       )}
@@ -88,26 +90,32 @@ export default function App() {
         <Sidebar
           route={route}
           onSelect={navigate}
+          about={view === 'about'}
+          onAbout={openAbout}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
-        <main
-          className={cx(
-            'mx-auto flex w-full max-w-3xl flex-1 flex-col px-4',
-            compact ? 'min-h-0 gap-2 overflow-y-auto py-2' : 'gap-4 py-5 landscape:py-3',
-          )}
-        >
-          <h1 className={cx('font-semibold text-ink', compact ? 'sr-only' : 'text-sm')}>
-            {t(ROUTE_KEYS[route])}
-          </h1>
+        {view === 'about' ? (
+          <main className="flex min-h-0 w-full min-w-0 flex-1 flex-col">
+            <AboutPage onBack={() => navigate(route)} />
+          </main>
+        ) : (
+          <main
+            className={cx(
+              'mx-auto flex w-full max-w-3xl flex-1 flex-col px-4',
+              compact ? 'min-h-0 gap-2 overflow-y-auto py-2' : 'gap-4 py-5 landscape:py-3',
+            )}
+          >
+            <h1 className={cx('font-semibold text-ink', compact ? 'sr-only' : 'text-sm')}>{title}</h1>
 
-          {isExerciseMode(route) ? (
-            <ExerciseView mode={route} compact={compact} />
-          ) : (
-            <Dictionary compact={compact} />
-          )}
-        </main>
+            {isExerciseMode(route) ? (
+              <ExerciseView mode={route} compact={compact} />
+            ) : (
+              <Dictionary compact={compact} />
+            )}
+          </main>
+        )}
       </div>
 
       {settingsOpen && <SettingsPanel route={route} onClose={() => setSettingsOpen(false)} />}

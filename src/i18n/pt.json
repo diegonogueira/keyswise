@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "Keyswise"
+  },
   "nav": {
     "group": {
       "voicings": "Voicings",
@@ -86,5 +89,56 @@
   },
   "lang": {
     "label": "Idioma"
+  },
+  "about": {
+    "title": "Sobre",
+    "nav": "Sobre o Keyswise",
+    "tagline": "Voicings de acorde no piano: ler a cifra no teclado e o teclado na cifra.",
+    "whatTitle": "Ler voicings",
+    "what": "Um voicing é o jeito de tocar um acorde: quais notas, em que ordem e em que registro. A mesma cifra — Cmaj7, C7(9,13) — vira muitos desenhos no teclado: com ou sem a fundamental, invertida, em quartas. Quem acompanha, lê songbook ou improvisa precisa ir e voltar entre a cifra e a mão sem parar para pensar, e isso só se ganha repetindo.",
+    "helpsTitle": "Em que ele ajuda",
+    "helps": [
+      {
+        "title": "Nos dois sentidos",
+        "text": "Teclas → Cifra treina reconhecer o acorde que está debaixo dos dedos; Cifra → Teclas treina achar a forma certa para uma cifra impressa."
+      },
+      {
+        "title": "Voicings de verdade",
+        "text": "Além de tríades e inversões, shells, rootless no estilo Bill Evans e quartais no estilo So What: as formas que aparecem no jazz e na música popular."
+      },
+      {
+        "title": "Sem chutar",
+        "text": "As alternativas têm sempre a mesma fundamental e notas diferentes: só acerta quem reconhece a qualidade do acorde. E um rootless responde pela cifra completa."
+      },
+      {
+        "title": "Um dicionário à mão",
+        "text": "Todas as qualidades, por categoria, com cada variação desenhada no teclado, em qualquer um dos 12 tons. Toque num cartão para ouvir."
+      },
+      {
+        "title": "Ouvir o que leu",
+        "text": "Cada resposta soa no piano, para o ouvido aprender junto com o olho."
+      },
+      {
+        "title": "Do seu jeito",
+        "text": "Escolha quais acordes e estilos praticar, e se a fundamental fica em Dó ou muda a cada questão."
+      }
+    ],
+    "howTitle": "Como tirar proveito",
+    "how": [
+      "Comece pelas tríades com a fundamental em Dó e só acrescente categorias quando acertar sem hesitar.",
+      "Diga o nome das notas antes de responder: é o que fixa o desenho na cabeça.",
+      "Alterne os dois exercícios — reconhecer um acorde e achar um acorde são habilidades diferentes.",
+      "Errou? Abra o acorde no dicionário e toque todas as variações dele.",
+      "Pouco e todo dia rende mais do que muito de vez em quando."
+    ],
+    "projectTitle": "O projeto",
+    "project": "O Keyswise faz parte de uma família de apps de estudo que funcionam do mesmo jeito: sightwise (leitura à primeira vista), sheetwise (leitura de notas na pauta), fretwise (o braço do violão), earwise (percepção musical) e mathwise (cálculo mental). Ele roda no navegador e no Android — onde funciona sem internet, porque o som do piano vem dentro do app.",
+    "creditsTitle": "Créditos",
+    "credits": [
+      "Som de piano do soundfont MusyngKite, de Christian Collins (Creative Commons Attribution), via gleitz/midi-js-soundfonts.",
+      "Áudio tocado com a biblioteca smplr.",
+      "Ícones da interface: Lucide."
+    ],
+    "back": "Voltar ao estudo"
   }
 }

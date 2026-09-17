@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "Keyswise"
+  },
   "nav": {
     "group": {
       "voicings": "Voicings",
@@ -86,5 +89,56 @@
   },
   "lang": {
     "label": "Language"
+  },
+  "about": {
+    "title": "About",
+    "nav": "About Keyswise",
+    "tagline": "Piano chord voicings: read the symbol on the keys and the keys in the symbol.",
+    "whatTitle": "Reading voicings",
+    "what": "A voicing is how a chord is played: which notes, in what order and in which register. The same symbol — Cmaj7, C7(9,13) — turns into many shapes on the keyboard: with or without the root, inverted, in fourths. Anyone who comps, reads lead sheets or improvises has to go back and forth between the symbol and the hand without stopping to think, and that only comes with repetition.",
+    "helpsTitle": "How it helps",
+    "helps": [
+      {
+        "title": "Both directions",
+        "text": "Keys → Chord trains recognizing the chord under your fingers; Chord → Keys trains finding the right shape for a printed symbol."
+      },
+      {
+        "title": "Real voicings",
+        "text": "Beyond triads and inversions: shells, Bill Evans–style rootless voicings and So What–style quartals — the shapes that show up in jazz and popular music."
+      },
+      {
+        "title": "No guessing",
+        "text": "The choices always share the root and have different notes, so only recognizing the chord quality gets it right. And a rootless voicing answers to the full symbol."
+      },
+      {
+        "title": "A dictionary at hand",
+        "text": "Every quality, by category, with each variation drawn on the keyboard, in any of the 12 keys. Tap a card to hear it."
+      },
+      {
+        "title": "Hear what you read",
+        "text": "Every answer sounds on the piano, so your ear learns along with your eye."
+      },
+      {
+        "title": "Your way",
+        "text": "Choose which chords and styles to practice, and whether the root stays on C or changes with every question."
+      }
+    ],
+    "howTitle": "Getting the most out of it",
+    "how": [
+      "Start with triads rooted on C and only add categories once you answer without hesitating.",
+      "Say the note names before answering: that is what fixes the shape in your head.",
+      "Alternate the two exercises — recognizing a chord and finding a chord are different skills.",
+      "Got one wrong? Open the chord in the dictionary and play all of its variations.",
+      "A little every day goes further than a lot once in a while."
+    ],
+    "projectTitle": "The project",
+    "project": "Keyswise belongs to a family of study apps that work the same way: sightwise (sight-reading), sheetwise (reading notes on the staff), fretwise (the guitar fretboard), earwise (ear training) and mathwise (mental math). It runs in the browser and on Android — where it works offline, because the piano sound ships inside the app.",
+    "creditsTitle": "Credits",
+    "credits": [
+      "Piano sound from the MusyngKite soundfont by Christian Collins (Creative Commons Attribution), via gleitz/midi-js-soundfonts.",
+      "Audio played with the smplr library.",
+      "Interface icons: Lucide."
+    ],
+    "back": "Back to practice"
   }
 }

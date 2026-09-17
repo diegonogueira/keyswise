@@ -1,4 +1,4 @@
-import { Music2, Grid2x2, BookOpen } from 'lucide-react'
+import { Music2, Grid2x2, BookOpen, Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Route } from '../lib/routes'
 import { setLanguage } from '../i18n'
@@ -7,6 +7,9 @@ import { cx } from '../lib/cx'
 interface SidebarProps {
   route: Route
   onSelect: (r: Route) => void
+  /** a página "Sobre" está aberta (o destino não fica marcado) */
+  about: boolean
+  onAbout: () => void
   /** drawer aberto (apenas mobile) */
   open: boolean
   onClose: () => void
@@ -55,7 +58,9 @@ function LangSwitcher() {
   )
 }
 
-function Nav({ route, onSelect }: { route: Route; onSelect: (r: Route) => void }) {
+type NavProps = Pick<SidebarProps, 'route' | 'onSelect' | 'about' | 'onAbout'>
+
+function Nav({ route, onSelect, about, onAbout }: NavProps) {
   const { t } = useTranslation()
   return (
     <nav className="flex flex-col gap-5">
@@ -66,7 +71,7 @@ function Nav({ route, onSelect }: { route: Route; onSelect: (r: Route) => void }
           </h2>
           <ul className="flex flex-col gap-0.5">
             {group.items.map((item) => {
-              const active = route === item.route
+              const active = !about && route === item.route
               const Icon = item.icon
               return (
                 <li key={item.route}>
@@ -90,18 +95,32 @@ function Nav({ route, onSelect }: { route: Route; onSelect: (r: Route) => void }
           </ul>
         </div>
       ))}
-      <LangSwitcher />
+      <div className="flex flex-col gap-1">
+        <button
+          type="button"
+          onClick={onAbout}
+          aria-current={about ? 'page' : undefined}
+          className={cx(
+            'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors',
+            about ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-line hover:text-ink',
+          )}
+        >
+          <Info size={16} className="shrink-0" />
+          {t('about.nav')}
+        </button>
+        <LangSwitcher />
+      </div>
     </nav>
   )
 }
 
-export function Sidebar({ route, onSelect, open, onClose }: SidebarProps) {
+export function Sidebar({ route, onSelect, about, onAbout, open, onClose }: SidebarProps) {
   return (
     <>
       {/* coluna fixa em telas largas (desktop) */}
       <aside className="hidden w-60 shrink-0 border-r border-line bg-surface lg:block">
         <div className="sticky top-[57px] p-3">
-          <Nav route={route} onSelect={onSelect} />
+          <Nav route={route} onSelect={onSelect} about={about} onAbout={onAbout} />
         </div>
       </aside>
 
@@ -120,6 +139,11 @@ export function Sidebar({ route, onSelect, open, onClose }: SidebarProps) {
               route={route}
               onSelect={(r) => {
                 onSelect(r)
+                onClose()
+              }}
+              about={about}
+              onAbout={() => {
+                onAbout()
                 onClose()
               }}
             />
