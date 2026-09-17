@@ -2,7 +2,8 @@
 
 App de treino de **voicings de acorde no piano**: o voicing acende no teclado e você diz a cifra,
 ou a cifra aparece e você escolhe o teclado certo — com tríades, sétimas, estendidos e alterados,
-em shells, rootless e quartais. Web-first (React + Vite).
+em shells, rootless e quartais. Web (React + Vite) e Android (Capacitor), com o som do piano
+embutido — **funciona offline**.
 
 Irmão do [fretwise](../fretwise), [sheetwise](../sheetwise), [sightwise](../sightwise) e
 [mathwise](../mathwise): mesmo chassi, mesmas convenções
@@ -25,10 +26,18 @@ Irmão do [fretwise](../fretwise), [sheetwise](../sheetwise), [sightwise](../sig
 
 ```bash
 npm install
+npm run samples      # baixa o piano (~4,5 MB) para public/samples — já versionado
 npm run dev          # http://localhost:5173
 npm run build        # tsc --noEmit && vite build
 npm test             # vitest: voicings, cifras, teclado, exercício, dicionário
 node scripts/shot.mjs  # confere a UI num Chromium de verdade (precisa do dev rodando)
+```
+
+Android (precisa do **JDK 21** — o Gradle 8.14 não aceita o JDK 26 padrão daqui):
+
+```bash
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk npm run android:apk
+npm run android:install
 ```
 
 ## Estrutura
@@ -41,7 +50,8 @@ src/core/            tudo o que é puro e testado (sem React)
   exercise.ts        geração e checagem das questões dos dois modos
   dictionary.ts      as entradas do dicionário num tom
 src/components/      a casca (TopBar, Sidebar, Settings), Piano/, o painel do exercício e o Dicionário
-src/audio/           o piano (smplr)
+src/audio/           o piano (smplr), dos samples locais
+android/             o app Android (Capacitor), que empacota o dist/
 ```
 
 O chassi comum (casca, modal, i18n, Android, deploy) segue o wisekit.

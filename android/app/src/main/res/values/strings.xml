@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Keyswise</string>
+    <string name="title_activity_main">Keyswise</string>
+    <string name="package_name">app.keyswise</string>
+    <string name="custom_url_scheme">app.keyswise</string>
+</resources>

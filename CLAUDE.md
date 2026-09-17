@@ -9,9 +9,12 @@ repetem aqui** — este arquivo guarda só o que é do keyswise.
 ## Comandos
 
 ```bash
+npm run samples      # baixa os samples do piano para public/samples (já versionados)
+
 npx vitest run src/core/voicings.test.ts   # um arquivo
 npx vitest run -t "rootless"                # um teste pelo nome
 
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk npm run android:apk
 node scripts/shot.mjs [url]   # fotos + erros de console num Chromium de verdade (dev rodando)
 ```
 
@@ -88,6 +91,15 @@ classifica cada shape pelo id — `-inv{n}` é fundamental (n = 0) ou n-ésima i
 estado fundamental, o resto é o estilo com a letra da variante (A/B…). Todas as variações de uma
 qualidade dividem a mesma janela do teclado, para os registros serem comparáveis. Tocar num cartão
 toca o shape. No dicionário o modal mostra só o áudio: as outras opções configuram o treino.
+
+### Áudio (`src/audio/player.ts`)
+
+O piano é o soundfont MusyngKite (via smplr), carregado de **arquivos locais** em
+`public/samples/` — versionados, ~4,5 MB, baixados por `npm run samples` —, nunca de CDN: o
+Android toca sem internet e o build do Docker/Gradle não depende de rede. O formato sai do
+navegador (ogg; mp3 no Safari). O `AudioContext` só soa depois de um gesto, então o som parte dos
+cliques (responder, tocar um cartão do dicionário); se o carregamento falhar, o app segue mudo e
+tenta de novo no próximo toque.
 
 ### Decisões de produto (v1)
 
