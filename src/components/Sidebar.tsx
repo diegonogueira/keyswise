@@ -12,9 +12,11 @@ interface SidebarProps {
   /** a página "Sobre" está aberta (o destino não fica marcado) */
   about: boolean
   onAbout: () => void
-  /** drawer aberto (apenas mobile) */
+  /** gaveta aberta (mobile, ou a paisagem curta em qualquer largura) */
   open: boolean
   onClose: () => void
+  /** celular deitado: a coluna fixa sai de cena e sobra só a gaveta */
+  compact: boolean
 }
 
 interface Item {
@@ -168,25 +170,25 @@ function Nav({ route, onSelect, about, onAbout }: NavProps) {
   )
 }
 
-export function Sidebar({ route, onSelect, about, onAbout, open, onClose }: SidebarProps) {
+export function Sidebar({ route, onSelect, about, onAbout, open, onClose, compact }: SidebarProps) {
   return (
     <>
-      {/* coluna fixa em telas largas (desktop) */}
-      <aside className="hidden w-60 shrink-0 border-r border-line bg-surface lg:block">
-        <div className="sticky top-[57px] p-3">
+      {/* coluna fixa em telas largas */}
+      <aside className={cx('hidden w-60 shrink-0 overflow-y-auto border-r border-line bg-surface', compact ? '' : 'lg:block')}>
+        <div className="p-3">
           <Nav route={route} onSelect={onSelect} about={about} onAbout={onAbout} />
         </div>
       </aside>
 
-      {/* drawer deslizante no mobile/tablet */}
+      {/* gaveta deslizante no mobile/tablet (e na paisagem curta) */}
       {open && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className={cx('fixed inset-0 z-40', compact ? '' : 'lg:hidden')}>
           <div className="absolute inset-0 bg-black/30" onClick={onClose} />
           <div
             className="absolute inset-y-0 left-0 w-64 overflow-y-auto bg-surface px-3 shadow-xl"
             style={{
-              paddingTop: 'calc(var(--safe-area-inset-top, env(safe-area-inset-top)) + 0.75rem)',
-              paddingBottom: 'calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom)) + 0.75rem)',
+              paddingTop: 'calc(0.75rem + var(--safe-area-inset-top, env(safe-area-inset-top)))',
+              paddingBottom: 'calc(0.75rem + var(--safe-area-inset-bottom, env(safe-area-inset-bottom)))',
             }}
           >
             <Nav

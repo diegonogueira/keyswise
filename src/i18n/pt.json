@@ -28,12 +28,10 @@
     }
   },
   "topbar": {
-    "subtitle": "treino de voicings",
     "aria": {
-      "openMenu": "Abrir menu",
+      "menu": "Abrir menu",
       "settings": "Configurações",
-      "hideBar": "Esconder barra",
-      "showBar": "Mostrar barra"
+      "adjusted": "há ajustes fora do padrão"
     }
   },
   "exercise": {

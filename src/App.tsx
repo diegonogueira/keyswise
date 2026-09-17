@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { TopBar } from './components/TopBar'
 import { SettingsPanel } from './components/Settings'
@@ -29,62 +28,51 @@ export default function App() {
   const audioEnabled = useSettings((s) => s.audioEnabled)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  // celular deitado: layout compacto, o teclado manda na tela
   const compact = useShortLandscape()
-  const [headerHidden, setHeaderHidden] = useState(() => compact)
-  const hideHeader = headerHidden
 
-  useEffect(() => {
-    setHeaderHidden(compact)
-  }, [compact])
-
-  useEffect(() => {
-    if (compact) setHeaderHidden(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, view])
-
+  // no Android: status bar escondida na paisagem, visível (sem cobrir) no retrato
   useEffect(() => {
     void syncStatusBar(compact)
   }, [compact])
 
+  // pré-carrega o piano para a primeira nota soar sem atraso
   useEffect(() => {
     if (audioEnabled) void loadInstrument()
   }, [audioEnabled])
 
   const title = view === 'about' ? t('about.title') : t(ROUTE_KEYS[route])
+  // título da aba: o app e o que está aberto, no idioma corrente
   useEffect(() => {
     document.title = `Keyswise — ${title}`
   }, [title, i18n.language])
 
   return (
-    <div className={cx('flex flex-col', compact ? 'h-[100dvh] overflow-hidden' : 'min-h-screen')}>
+    <div
+      // A tela é uma só, em qualquer orientação: a altura é a da janela e quem rola é o
+      // conteúdo, por dentro. Deixar a página crescer empurra os controles para fora da tela.
+      className="flex h-[100dvh] flex-col overflow-hidden"
+      // a barra de gestos do Android é desenhada SOBRE o fim da WebView
+      style={{ paddingBottom: 'var(--safe-area-inset-bottom, env(safe-area-inset-bottom))' }}
+    >
+      {/* faixa que reserva a status bar no retrato (o Android 15+ desenha edge-to-edge): o
+          relógio e a bateria ficam sobre o fundo do app. Na paisagem o inset vira 0 e ela some. */}
       <div
         aria-hidden
-        className="fixed inset-x-0 top-0 z-20"
+        className="fixed inset-x-0 top-0 z-40"
         style={{
           height: 'var(--safe-area-inset-top, env(safe-area-inset-top))',
           backgroundColor: 'var(--color-bg)',
         }}
       />
-      {!hideHeader && (
-        <TopBar
-          onOpenSettings={() => setSettingsOpen(true)}
-          onToggleSidebar={() => setSidebarOpen(true)}
-          compact={compact}
-          modeTitle={title}
-          onHide={compact ? () => setHeaderHidden(true) : undefined}
-        />
-      )}
-
-      {hideHeader && (
-        <button
-          type="button"
-          onClick={() => setHeaderHidden(false)}
-          aria-label={t('topbar.aria.showBar')}
-          className="fixed right-3 top-[calc(env(safe-area-inset-top)_+_0.75rem)] z-50 rounded-full border border-line bg-surface/80 p-2 text-muted shadow-sm backdrop-blur transition-colors hover:bg-line hover:text-ink"
-        >
-          <ChevronDown size={18} />
-        </button>
-      )}
+      {/* a barra fica também na paisagem curta, só mais fina: é por ela que se chega ao menu e
+          aos ajustes com o celular deitado */}
+      <TopBar
+        title={title}
+        compact={compact}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onToggleSidebar={() => setSidebarOpen(true)}
+      />
 
       <div className="flex min-h-0 flex-1">
         <Sidebar
@@ -94,6 +82,7 @@ export default function App() {
           onAbout={openAbout}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          compact={compact}
         />
 
         {view === 'about' ? (
@@ -101,14 +90,16 @@ export default function App() {
             <AboutPage onBack={() => navigate(route)} />
           </main>
         ) : (
+          // O exercício ocupa o centro da altura livre. O nome do destino vive na TopBar (e aqui
+          // só para leitores de tela). `justify-center-safe` centraliza sem cortar o começo — o
+          // dicionário, que é longo, começa no topo e rola por dentro.
           <main
             className={cx(
-              'mx-auto flex w-full max-w-3xl flex-1 flex-col px-4',
-              compact ? 'min-h-0 gap-2 overflow-y-auto py-2' : 'gap-4 py-5 landscape:py-3',
+              'mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col justify-center-safe overflow-y-auto',
+              compact ? 'gap-2 px-2 py-1' : 'gap-4 px-4 py-5',
             )}
           >
-            <h1 className={cx('font-semibold text-ink', compact ? 'sr-only' : 'text-sm')}>{title}</h1>
-
+            <h1 className="sr-only">{title}</h1>
             {isExerciseMode(route) ? (
               <ExerciseView mode={route} compact={compact} />
             ) : (

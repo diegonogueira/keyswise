@@ -61,3 +61,7 @@ body {
 .key-cell:hover {
   fill: color-mix(in srgb, var(--color-accent) 14%, transparent);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shake { animation: none; }
+}

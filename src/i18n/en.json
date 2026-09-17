@@ -28,12 +28,10 @@
     }
   },
   "topbar": {
-    "subtitle": "voicing trainer",
     "aria": {
-      "openMenu": "Open menu",
+      "menu": "Open menu",
       "settings": "Settings",
-      "hideBar": "Hide bar",
-      "showBar": "Show bar"
+      "adjusted": "some settings differ from the defaults"
     }
   },
   "exercise": {

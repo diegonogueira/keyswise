@@ -31,8 +31,11 @@ export function Dictionary({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={cx('flex flex-col', compact ? 'gap-3' : 'gap-6')}>
-      {/* seletor de tom — a "opção de todos os tons" */}
-      <div className="sticky top-0 z-10 rounded-2xl border border-line bg-surface p-3">
+      {/* seletor de tom — a "opção de todos os tons". Fica preso no topo do `main`, que é quem
+          rola: a faixa de fundo cobre o padding de cima do `main`, senão os cartões apareceriam
+          passando por cima dele */}
+      <div className={cx('sticky z-10 bg-bg', compact ? '-top-1 -mt-1 pt-1' : '-top-5 -mt-5 pt-5')}>
+      <div className="rounded-2xl border border-line bg-surface p-3">
         <div className="mb-2 flex items-center justify-between gap-2">
           <span className="text-xs font-semibold uppercase tracking-wide text-faint">
             {t('dictionary.rootLabel')}
@@ -59,6 +62,7 @@ export function Dictionary({ compact = false }: { compact?: boolean }) {
             </button>
           ))}
         </div>
+      </div>
       </div>
 
       {sections.map((section) => (
