@@ -13,7 +13,7 @@ export const ROUTE_PATH: Record<Route, string> = {
   dictionary: '/dictionary',
 }
 
-/** Destino aberto quando a URL não aponta para nenhum (ex.: "/" na primeira visita). */
+/** Destino da primeira visita: a URL não aponta para nenhum e ainda não há um último aberto. */
 export const DEFAULT_ROUTE: Route = 'keysToSymbol'
 
 const PATH_ROUTE = Object.fromEntries(
@@ -22,9 +22,17 @@ const PATH_ROUTE = Object.fromEntries(
 
 const clean = (pathname: string) => pathname.replace(/\/+$/, '') || '/'
 
-/** Resolve um pathname para o destino correspondente (cai no padrão se desconhecido). */
-export function routeFromPath(pathname: string): Route {
-  return PATH_ROUTE[clean(pathname)] ?? DEFAULT_ROUTE
+/**
+ * Resolve um pathname para o destino correspondente. Um caminho que não é de destino ("/", um
+ * link velho) cai no `fallback` — o último destino aberto, quando houver.
+ */
+export function routeFromPath(pathname: string, fallback: Route = DEFAULT_ROUTE): Route {
+  return PATH_ROUTE[clean(pathname)] ?? fallback
+}
+
+/** Valida um id guardado: um destino que deixou de existir vira `null`. */
+export function parseRoute(id: string | null): Route | null {
+  return id !== null && Object.hasOwn(ROUTE_PATH, id) ? (id as Route) : null
 }
 
 /** Caminho canônico de um destino. */
